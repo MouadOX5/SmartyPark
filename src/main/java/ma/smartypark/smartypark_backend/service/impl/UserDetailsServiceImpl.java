@@ -1,0 +1,22 @@
+package ma.smartypark.smartypark_backend.service.impl;
+
+import lombok.RequiredArgsConstructor;
+import ma.smartypark.smartypark_backend.entity.Utilisateur;
+import ma.smartypark.smartypark_backend.repository.UtilisateurRepository;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+public class UserDetailsServiceImpl implements UserDetailsService {
+
+    private final UtilisateurRepository utilisateurRepository;
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        return utilisateurRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Utilisateur non trouvé : " + email));
+    }
+}
