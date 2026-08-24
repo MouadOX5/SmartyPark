@@ -12,7 +12,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Search, X, Clock } from 'lucide-react-native';
+import { Search, X, Map as MapIcon, List as ListIcon } from 'lucide-react-native';
+import MapView, { Marker, Callout, Region } from 'react-native-maps';
 import { espacePublicApi } from '../../src/api/espacePublicApi';
 import { EspacePublicResponse, CategorieEspace } from '../../src/types';
 import { COLORS } from '../../src/constants/colors';
@@ -36,6 +37,8 @@ export default function ExplorerScreen() {
   const [searchText, setSearchText] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('tous');
   const [distances, setDistances] = useState<Record<number, number>>({});
+  const [viewMode, setViewMode] = useState<'liste' | 'carte'>('liste');
+  const [region, setRegion] = useState<Region | undefined>(undefined);
 
   const loadEspaces = async () => {
     try {
@@ -59,8 +62,23 @@ export default function ExplorerScreen() {
         map[e.id] = calculateDistance(loc.latitude, loc.longitude, e.latitude, e.longitude);
       });
       setDistances(map);
+      if (!region) {
+        setRegion({
+          latitude: loc.latitude,
+          longitude: loc.longitude,
+          latitudeDelta: 0.05,
+          longitudeDelta: 0.05,
+        });
+      }
+    } else if (!region && data.length > 0) {
+       setRegion({
+          latitude: data[0].latitude,
+          longitude: data[0].longitude,
+          latitudeDelta: 0.05,
+          longitudeDelta: 0.05,
+       })
     }
-  }, []);
+  }, [region]);
 
   useEffect(() => {
     loadEspaces();
@@ -155,7 +173,7 @@ export default function ExplorerScreen() {
       <CategoryFilter selected={selectedCategory} onSelect={handleCategorySelect} />
 
       {/* Compteur & Tri */}
-      {!isLoading && (
+      {!isLoading && viewMode === 'liste' && (
         <View style={styles.countRow}>
           <Text style={styles.countText}>
             {sortedFiltered.length} espace{sortedFiltered.length > 1 ? 's' : ''} trouvé{sortedFiltered.length > 1 ? 's' : ''}
@@ -166,9 +184,52 @@ export default function ExplorerScreen() {
         </View>
       )}
 
-      {/* Liste verticale scrollable */}
+      {/* Toggle View Mode */}
+      <View style={styles.viewToggleContainer}>
+        <TouchableOpacity 
+          style={[styles.viewToggleBtn, viewMode === 'liste' && styles.viewToggleBtnActive]}
+          onPress={() => setViewMode('liste')}
+          activeOpacity={0.8}
+        >
+          <ListIcon size={16} color={viewMode === 'liste' ? COLORS.primary : '#64748B'} />
+          <Text style={[styles.viewToggleText, viewMode === 'liste' && styles.viewToggleTextActive]}>Liste</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={[styles.viewToggleBtn, viewMode === 'carte' && styles.viewToggleBtnActive]}
+          onPress={() => setViewMode('carte')}
+          activeOpacity={0.8}
+        >
+          <MapIcon size={16} color={viewMode === 'carte' ? COLORS.primary : '#64748B'} />
+          <Text style={[styles.viewToggleText, viewMode === 'carte' && styles.viewToggleTextActive]}>Carte</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Contenu : Carte ou Liste */}
       {isLoading ? (
         <ActivityIndicator size="large" color={COLORS.primary} style={styles.loader} />
+      ) : viewMode === 'carte' ? (
+        <View style={styles.mapContainer}>
+          <MapView
+            style={styles.map}
+            initialRegion={region}
+            showsUserLocation={true}
+          >
+            {sortedFiltered.map((espace) => (
+              <Marker
+                key={espace.id}
+                coordinate={{ latitude: espace.latitude, longitude: espace.longitude }}
+                onCalloutPress={() => router.push(`/espaces/${espace.id}`)}
+              >
+                <Callout tooltip>
+                  <View style={styles.calloutContainer}>
+                    <Text style={styles.calloutTitle}>{espace.nom}</Text>
+                    <Text style={styles.calloutSub}>Cliquez pour voir les détails</Text>
+                  </View>
+                </Callout>
+              </Marker>
+            ))}
+          </MapView>
+        </View>
       ) : (
         <FlatList
           data={sortedFiltered}
@@ -301,5 +362,62 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  viewToggleContainer: {
+    flexDirection: 'row',
+    alignSelf: 'center',
+    backgroundColor: '#F1F5F9',
+    borderRadius: 8,
+    padding: 4,
+    marginVertical: 10,
+  },
+  viewToggleBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 6,
+    paddingHorizontal: 16,
+    borderRadius: 6,
+    gap: 6,
+  },
+  viewToggleBtnActive: {
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  viewToggleText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#64748B',
+  },
+  viewToggleTextActive: {
+    color: COLORS.primary,
+  },
+  mapContainer: {
+    flex: 1,
+    overflow: 'hidden',
+  },
+  map: {
+    flex: 1,
+  },
+  calloutContainer: {
+    backgroundColor: '#FFFFFF',
+    padding: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    minWidth: 150,
+  },
+  calloutTitle: {
+    fontWeight: '700',
+    fontSize: 14,
+    color: '#0F172A',
+    marginBottom: 4,
+  },
+  calloutSub: {
+    fontSize: 12,
+    color: '#64748B',
   },
 });

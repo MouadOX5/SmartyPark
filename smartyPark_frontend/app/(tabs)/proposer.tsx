@@ -76,7 +76,7 @@ export default function ProposerScreen() {
     try {
       await propositionApi.creer({
         nom: nom.trim(),
-        description: description.trim() || undefined,
+        description: description.trim(),
         categorie,
         adresse: adresse.trim(),
         latitude: coords.latitude,

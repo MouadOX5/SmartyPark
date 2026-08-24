@@ -27,6 +27,7 @@ import { presenceApi } from '../../src/api/presenceApi';
 import { EspacePublicResponse } from '../../src/types';
 import { COLORS } from '../../src/constants/colors';
 import { AffluenceBadge, getAffluenceText } from '../../src/components/AffluenceBadge';
+import { AffluenceDonut } from '../../src/components/AffluenceDonut';
 import { Button } from '../../src/components/ui/Button';
 import { formatCategoryName } from '../../src/utils/formatters';
 import { usePresence } from '../../src/context/PresenceContext';
@@ -173,14 +174,17 @@ export default function EspaceDetailScreen() {
           </View>
         </View>
 
-        {/* Section Affluence Qualitative (PAS de donut, PAS de %) */}
+        {/* Section Affluence Qualitative avec Donut */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Affluence actuelle</Text>
-          <View style={styles.affluenceRow}>
-            <AffluenceBadge statut={espace.statutAffluenceActuel} size="md" />
-            <Text style={styles.affluenceText}>
-              {getAffluenceText(espace.statutAffluenceActuel)}
-            </Text>
+          <View style={styles.affluenceDonutRow}>
+            <AffluenceDonut statut={espace.statutAffluenceActuel} size={90} />
+            <View style={styles.affluenceDonutInfo}>
+              <AffluenceBadge statut={espace.statutAffluenceActuel} size="md" />
+              <Text style={styles.affluenceDonutText}>
+                {getAffluenceText(espace.statutAffluenceActuel)}
+              </Text>
+            </View>
           </View>
           <View style={styles.usersCountRow}>
             <Users size={16} color={COLORS.primary} />
@@ -227,12 +231,12 @@ export default function EspaceDetailScreen() {
             }
           />
 
-          {/* 3. Déclarer ma présence */}
+          {/* 3. Déclarer ma présence -> Commencer ma séance */}
           <Button
             title={
               isActive && activePresence?.espacePublicId === espaceId
                 ? '▶  Voir ma session en cours'
-                : '▶  Déclarer ma présence'
+                : '▶  Commencer ma séance'
             }
             variant="primary"
             size="lg"
@@ -356,17 +360,20 @@ const styles = StyleSheet.create({
     color: '#0F172A',
     marginBottom: 12,
   },
-  affluenceRow: {
+  affluenceDonutRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    marginBottom: 14,
+    gap: 16,
+    marginBottom: 16,
   },
-  affluenceText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#334155',
+  affluenceDonutInfo: {
     flex: 1,
+    gap: 8,
+  },
+  affluenceDonutText: {
+    fontSize: 13,
+    color: '#475569',
+    lineHeight: 18,
   },
   usersCountRow: {
     flexDirection: 'row',
