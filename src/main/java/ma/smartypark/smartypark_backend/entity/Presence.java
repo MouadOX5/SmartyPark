@@ -46,6 +46,23 @@ public class Presence {
     @ToString.Exclude
     private EspacePublic espacePublic;
 
+    /** Latitude GPS de l'utilisateur au moment de la déclaration de présence */
+    private Double latitudeDeclaration;
+
+    /** Longitude GPS de l'utilisateur au moment de la déclaration de présence */
+    private Double longitudeDeclaration;
+
+    /** Distance calculée entre l'utilisateur et l'espace au moment de la déclaration (en mètres) */
+    private Double distanceDeclarationMetres;
+
+    /**
+     * Motif de terminaison de la présence.
+     * Valeurs possibles : TERMINAISON_VOLONTAIRE, SORTIE_DE_ZONE, EXPIRATION_AUTOMATIQUE
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(length = 50)
+    private MotifTerminaisonPresence motifTerminaison;
+
 
     @PrePersist
     protected void onCreate() {

@@ -1,3 +1,6 @@
+// ============================================================================
+// File: AffluenceService.java
+// ============================================================================
 package ma.smartypark.smartypark_backend.service;
 
 import ma.smartypark.smartypark_backend.dto.affluence.DeclarationAffluenceRequest;

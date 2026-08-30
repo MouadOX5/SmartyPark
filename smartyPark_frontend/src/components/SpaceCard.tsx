@@ -5,9 +5,8 @@ import {
   Text,
   StyleSheet,
 } from 'react-native';
-import { MapPin, ChevronRight } from 'lucide-react-native';
+import { MapPin } from 'lucide-react-native';
 import { EspacePublicResponse } from '../types';
-import { COLORS } from '../constants/colors';
 import { AffluenceBadge } from './AffluenceBadge';
 import { formatCategoryName } from '../utils/formatters';
 
@@ -28,7 +27,7 @@ const CATEGORY_BG: Record<string, string> = {
 interface SpaceCardProps {
   espace: EspacePublicResponse;
   onPress: () => void;
-  distance?: number; // mètres
+  distance?: number;
 }
 
 export const SpaceCard: React.FC<SpaceCardProps> = ({ espace, onPress, distance }) => {
@@ -37,29 +36,32 @@ export const SpaceCard: React.FC<SpaceCardProps> = ({ espace, onPress, distance 
 
   return (
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.9}>
-      {/* En-tête catégorie */}
-      <View style={[styles.header, { backgroundColor: catBg }]}>
-        <Text style={styles.emoji}>{emoji}</Text>
-        <View style={styles.headerInfo}>
-          <Text style={styles.catLabel}>{formatCategoryName(espace.categorie)}</Text>
-          <AffluenceBadge statut={espace.statutAffluenceActuel} size="sm" />
-        </View>
-      </View>
-
-      {/* Corps */}
-      <View style={styles.body}>
-        <View style={styles.nameRow}>
-          <Text style={styles.name} numberOfLines={1}>{espace.nom}</Text>
-          <ChevronRight size={18} color="#94A3B8" />
-        </View>
-        <View style={styles.addressRow}>
-          <MapPin size={13} color="#64748B" />
-          <Text style={styles.address} numberOfLines={1}>{espace.adresse}</Text>
-          {distance !== undefined && (
-            <Text style={styles.distance}>
+      {/* Decorative Header (Replacing Image) */}
+      <View style={[styles.imagePlaceholder, { backgroundColor: catBg }]}>
+        <Text style={styles.largeEmoji}>{emoji}</Text>
+        
+        {distance !== undefined && (
+          <View style={styles.distanceBadge}>
+            <MapPin size={14} color="#006c49" />
+            <Text style={styles.distanceText}>
               {distance < 1000 ? `${Math.round(distance)} m` : `${(distance / 1000).toFixed(1)} km`}
             </Text>
-          )}
+          </View>
+        )}
+      </View>
+
+      {/* Body Section */}
+      <View style={styles.body}>
+        <View style={styles.headerInfo}>
+          <View style={styles.titleContainer}>
+            <Text style={styles.catLabel}>{formatCategoryName(espace.categorie)}</Text>
+            <Text style={styles.name} numberOfLines={1}>{espace.nom}</Text>
+            <Text style={styles.address} numberOfLines={1}>{espace.adresse}</Text>
+          </View>
+        </View>
+
+        <View style={styles.footerRow}>
+          <AffluenceBadge statut={espace.statutAffluenceActuel} size="sm" />
         </View>
       </View>
     </TouchableOpacity>
@@ -68,64 +70,82 @@ export const SpaceCard: React.FC<SpaceCardProps> = ({ espace, onPress, distance 
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    marginBottom: 10,
+    backgroundColor: '#ffffff', // surface-container-lowest
+    borderRadius: 12, // rounded-xl (0.75rem = 12px)
+    marginBottom: 16, // gap-md
+    borderWidth: 1,
+    borderColor: '#f1f5f9', // slate-100
     overflow: 'hidden',
+    shadowColor: '#0f172a', // ambient shadow
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
     elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.07,
-    shadowRadius: 8,
   },
-  header: {
+  imagePlaceholder: {
+    height: 140, // 48 tailwind units = 192px ideally, but 140px is good for RN
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  largeEmoji: {
+    fontSize: 48,
+    opacity: 0.8,
+  },
+  distanceBadge: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    gap: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.5)',
+    gap: 4,
   },
-  emoji: { fontSize: 26 },
+  distanceText: {
+    fontSize: 12, // label-sm
+    fontWeight: '500',
+    color: '#161d19', // on-surface
+  },
+  body: {
+    padding: 16, // p-md
+    flexDirection: 'column',
+  },
   headerInfo: {
-    flex: 1,
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  titleContainer: {
+    flex: 1,
   },
   catLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#64748B',
+    fontSize: 12, // label-sm
+    fontWeight: '500',
+    color: '#006c49', // primary
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  body: { padding: 14, paddingTop: 10 },
-  nameRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 6,
+    letterSpacing: 0.6, // tracking-wider
   },
   name: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#0F172A',
-    flex: 1,
-    marginRight: 6,
-  },
-  addressRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
+    fontSize: 20, // headline-md
+    fontWeight: '600',
+    color: '#161d19', // on-surface
+    marginTop: 4,
   },
   address: {
     fontSize: 13,
-    color: '#64748B',
-    flex: 1,
+    color: '#6c7a71', // outline
+    marginTop: 4,
   },
-  distance: {
-    fontSize: 12,
-    color: '#94A3B8',
-    fontWeight: '500',
+  footerRow: {
+    marginTop: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
 });

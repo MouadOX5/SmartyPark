@@ -1,0 +1,273 @@
+<!DOCTYPE html><html class="light" lang="fr" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+<title>SmartyPark - Déclaration d'affluence</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary": "#565e74",
+                    "on-surface": "#161d19",
+                    "surface-tint": "#006c49",
+                    "on-secondary-fixed-variant": "#3f465c",
+                    "slate-100": "#f1f5f9",
+                    "on-secondary-container": "#5c647a",
+                    "tertiary-container": "#fc7c78",
+                    "secondary-fixed-dim": "#bec6e0",
+                    "outline": "#6c7a71",
+                    "on-tertiary-container": "#711419",
+                    "on-primary-container": "#00422b",
+                    "surface-container-lowest": "#ffffff",
+                    "on-tertiary-fixed": "#410005",
+                    "primary-fixed-dim": "#4edea3",
+                    "on-secondary": "#ffffff",
+                    "slate-200": "#e2e8f0",
+                    "on-background": "#161d19",
+                    "surface-container-low": "#eef6ee",
+                    "on-secondary-fixed": "#131b2e",
+                    "surface-container": "#e8f0e9",
+                    "background": "#f4fbf4",
+                    "primary-container": "#10b981",
+                    "slate-800": "#1e293b",
+                    "on-primary": "#ffffff",
+                    "on-tertiary": "#ffffff",
+                    "surface-variant": "#dde4dd",
+                    "surface": "#f4fbf4",
+                    "on-surface-variant": "#3c4a42",
+                    "tertiary": "#a43a3a",
+                    "surface-container-highest": "#dde4dd",
+                    "inverse-on-surface": "#ebf3eb",
+                    "tertiary-fixed-dim": "#ffb3af",
+                    "error-container": "#ffdad6",
+                    "danger": "#ef4444",
+                    "primary": "#006c49",
+                    "surface-bright": "#f4fbf4",
+                    "tertiary-fixed": "#ffdad7",
+                    "surface-dim": "#d4dcd5",
+                    "primary-fixed": "#6ffbbe",
+                    "inverse-surface": "#2b322d",
+                    "on-tertiary-fixed-variant": "#842225",
+                    "inverse-primary": "#4edea3",
+                    "warning": "#f59e0b",
+                    "secondary-fixed": "#dae2fd",
+                    "on-error": "#ffffff",
+                    "on-primary-fixed-variant": "#005236",
+                    "surface-container-high": "#e3eae3",
+                    "secondary-container": "#dae2fd",
+                    "on-primary-fixed": "#002113",
+                    "error": "#ba1a1a",
+                    "slate-50": "#f8fafc",
+                    "outline-variant": "#bbcabf",
+                    "on-error-container": "#93000a",
+                    "success": "#10b981"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-mobile": "20px",
+                    "md": "16px",
+                    "sm": "8px",
+                    "xs": "4px",
+                    "lg": "24px",
+                    "gutter": "16px",
+                    "xl": "32px"
+            },
+            "fontFamily": {
+                    "headline-lg": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "display": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "headline-lg-mobile": ["Inter"],
+                    "label-lg": ["Inter"],
+                    "body-md": ["Inter"],
+                    "label-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-lg": ["28px", {"lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "display": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "headline-sm": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { -webkit-tap-highlight-color: transparent; }
+        .pulse-ring {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 0; }
+        }
+        .toast-enter {
+            transform: translateY(100%);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .toast-enter-active {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-body-md overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="docked full-width top-0 border-b border-slate-100 dark:border-on-surface-variant flex justify-between items-center w-full px-margin-mobile h-16 bg-surface dark:bg-surface fixed z-40" id="top-nav">
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center overflow-hidden">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="person">person</span>
+</div>
+<span class="text-headline-sm font-headline-sm font-bold text-primary dark:text-primary-fixed-dim">SmartyPark</span>
+</div>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-container-highest transition-colors active:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 pt-20 pb-28 px-margin-mobile max-w-lg mx-auto w-full flex flex-col gap-lg">
+<!-- Top Banner: GPS Verification -->
+<div class="bg-success/10 border border-success/20 rounded-xl p-md flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-success/20 flex items-center justify-center shrink-0 relative">
+<div class="absolute inset-0 rounded-full bg-success/30 pulse-ring"></div>
+<span class="material-symbols-outlined text-success" data-icon="check_circle" data-weight="fill">check_circle</span>
+</div>
+<div>
+<h3 class="text-label-lg font-label-lg text-success">Vérification GPS... Position validée</h3>
+<p class="text-label-sm font-label-sm text-on-surface-variant mt-xs">Vous êtes bien sur place.</p>
+</div>
+</div>
+<!-- Central Card: Active Presence -->
+<div class="bg-surface-container-lowest border border-slate-100 rounded-xl p-lg shadow-sm flex flex-col items-center text-center relative overflow-hidden">
+<!-- Background subtle pattern -->
+<div class="absolute inset-0 opacity-5" style="background-image: radial-gradient(circle at 50% 50%, #006c49 1px, transparent 1px); background-size: 20px 20px;"></div>
+<div class="relative z-10 w-full flex flex-col items-center">
+<div class="w-16 h-16 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center mb-md">
+<span class="material-symbols-outlined text-display" data-icon="timer">timer</span>
+</div>
+<h2 class="text-display font-display text-primary mb-xs" id="timer-display">00:27:50</h2>
+<div class="flex items-center gap-xs bg-surface-container py-1 px-3 rounded-full mb-lg">
+<span class="w-2 h-2 rounded-full bg-success"></span>
+<span class="text-label-sm font-label-sm text-on-surface-variant">Présence en cours au Parc des Tuileries</span>
+</div>
+<!-- Primary Action: End Presence -->
+<button class="w-full bg-surface-container-lowest border-2 border-danger text-danger py-md px-lg rounded-full text-label-lg font-label-lg hover:bg-error-container transition-colors active:scale-95 duration-200 flex items-center justify-center gap-sm" onclick="showToast()">
+<span class="material-symbols-outlined" data-icon="stop_circle">stop_circle</span>
+                    Terminer ma présence
+                </button>
+</div>
+</div>
+<!-- Collaborative Zone -->
+<div class="flex flex-col gap-md mt-sm"><div class="flex flex-col gap-lg">
+  <!-- SECTION 1: Niveau d'affluence actuel -->
+  <div class="flex flex-col gap-md">
+    <h3 class="text-headline-sm font-headline-sm text-on-surface">Niveau d'affluence actuel</h3>
+    <div class="grid grid-cols-3 gap-md">
+      <button class="bg-success/10 border border-success/20 rounded-xl p-md flex flex-col items-center text-center gap-sm hover:bg-success/20 transition-all active:scale-95">
+        <div class="w-12 h-12 rounded-full bg-success/20 text-success flex items-center justify-center">
+          <span class="material-symbols-outlined text-headline-md">person</span>
+        </div>
+        <span class="text-label-lg font-bold text-on-surface">Faible</span>
+      </button>
+      <button class="bg-warning/10 border border-warning/20 rounded-xl p-md flex flex-col items-center text-center gap-sm hover:bg-warning/20 transition-all active:scale-95">
+        <div class="w-12 h-12 rounded-full bg-warning/20 text-warning flex items-center justify-center">
+          <span class="material-symbols-outlined text-headline-md">groups</span>
+        </div>
+        <span class="text-label-lg font-bold text-on-surface">Modéré</span>
+      </button>
+      <button class="bg-error-container/30 border border-error-container rounded-xl p-md flex flex-col items-center text-center gap-sm hover:bg-error-container/50 transition-all active:scale-95">
+        <div class="w-12 h-12 rounded-full bg-error-container text-danger flex items-center justify-center">
+          <span class="material-symbols-outlined text-headline-md">group_add</span>
+        </div>
+        <span class="text-label-lg font-bold text-on-surface">Saturé</span>
+      </button>
+    </div>
+    <button class="w-full bg-primary text-on-primary py-md px-lg rounded-full text-label-lg font-label-lg shadow-sm hover:opacity-90 transition-opacity active:scale-95" onclick="showToast()">
+      Valider l'affluence
+    </button>
+  </div>
+
+  <!-- SECTION 2: Signaler un problème -->
+  <button class="bg-error-container/20 border border-error-container/50 rounded-xl p-lg flex items-start gap-md text-left hover:bg-error-container/30 transition-all active:scale-[0.98]" onclick="showToast()">
+    <div class="w-12 h-12 rounded-full bg-error-container text-danger flex items-center justify-center shrink-0">
+      <span class="material-symbols-outlined text-headline-md">report_problem</span>
+    </div>
+    <div class="flex flex-col">
+      <h4 class="text-label-lg font-bold text-on-surface">Signaler un problème / matériel endommagé</h4>
+      <p class="text-label-sm text-on-surface-variant mt-xs">(Banc cassé, panier de basket abîmé, propreté, etc.)</p>
+    </div>
+  </button>
+</div></div>
+</main>
+<!-- Toast Overlay -->
+<div class="fixed bottom-24 left-margin-mobile right-margin-mobile max-w-lg mx-auto z-50 pointer-events-none toast-enter" id="feedback-toast">
+<div class="bg-inverse-surface text-inverse-on-surface py-md px-lg rounded-xl shadow-lg flex items-center gap-md">
+<span class="material-symbols-outlined text-inverse-primary" data-icon="check_circle">check_circle</span>
+<span class="text-body-md font-body-md">Déclaration enregistrée ! Merci pour votre contribution.</span>
+</div>
+</div>
+<!-- BottomNavBar -->
+<nav class="docked full-width bottom-0 rounded-t-xl border-t border-slate-100 dark:border-on-surface-variant shadow-sm fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-20 pb-safe bg-surface dark:bg-surface" id="bottom-nav">
+<!-- Inactive: Map/List -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant px-5 py-1 hover:bg-surface-container dark:hover:bg-surface-container-high transition-all" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="map">map</span>
+<span class="text-label-sm font-label-sm">Map/List</span>
+</a>
+<!-- Active: My Spaces (Assuming presence declaration falls under managing my current spaces) -->
+<a class="flex flex-col items-center justify-center bg-primary-container dark:bg-primary-container text-on-primary-container dark:text-on-primary-container rounded-full px-5 py-1 hover:bg-surface-container dark:hover:bg-surface-container-high transition-all active:scale-95 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="bookmark" data-weight="fill">bookmark</span>
+<span class="text-label-sm font-label-sm">My Spaces</span>
+</a>
+<!-- Inactive: Profile -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant px-5 py-1 hover:bg-surface-container dark:hover:bg-surface-container-high transition-all" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="person">person</span>
+<span class="text-label-sm font-label-sm">Profile</span>
+</a>
+</nav>
+<script>
+        // Simple timer logic
+        let seconds = 765; // 12:45 in seconds
+        const timerDisplay = document.getElementById('timer-display');
+        
+        setInterval(() => {
+            seconds++;
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = seconds % 60;
+            timerDisplay.textContent = 
+                `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }, 1000);
+
+        // Toast logic
+        let toastTimeout;
+        function showToast() {
+            const toast = document.getElementById('feedback-toast');
+            toast.classList.add('toast-enter-active');
+            
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('toast-enter-active');
+            }, 3000);
+        }
+    </script>
+
+
+</body></html>

@@ -15,11 +15,11 @@ interface CategoryFilterProps {
 }
 
 const FILTERS = [
-  { key: 'tous', label: '🏟️  Tous', category: undefined },
-  { key: 'FOOTBALL', label: '⚽  Football', category: 'FOOTBALL' as CategorieEspace },
-  { key: 'BASKETBALL', label: '🏀  Basketball', category: 'BASKETBALL' as CategorieEspace },
-  { key: 'STREET_WORKOUT', label: '💪  Workout', category: 'STREET_WORKOUT' as CategorieEspace },
-  { key: 'ENFANTS', label: '🎠  Enfants', category: 'ENFANTS' as CategorieEspace },
+  { key: 'tous', label: 'Tous', category: undefined },
+  { key: 'FOOTBALL', label: 'Foot', category: 'FOOTBALL' as CategorieEspace },
+  { key: 'BASKETBALL', label: 'Basket', category: 'BASKETBALL' as CategorieEspace },
+  { key: 'STREET_WORKOUT', label: 'Street', category: 'STREET_WORKOUT' as CategorieEspace },
+  { key: 'ENFANTS', label: 'Enfants', category: 'ENFANTS' as CategorieEspace },
 ];
 
 export const CategoryFilter: React.FC<CategoryFilterProps> = ({ selected, onSelect }) => {
@@ -51,33 +51,34 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({ selected, onSele
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingHorizontal: 20, // margin-mobile
+    paddingVertical: 4,
     gap: 8,
   },
   pill: {
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: '#FFFFFF',
+    borderRadius: 9999, // full
+    backgroundColor: '#ffffff', // surface-container-lowest
     borderWidth: 1,
-    borderColor: '#E2E8F0',
-    shadowColor: '#000',
+    borderColor: '#e2e8f0', // slate-200
+    shadowColor: '#0f172a', // ambient shadow tint
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.04,
     shadowRadius: 2,
     elevation: 1,
   },
   pillActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
+    backgroundColor: '#006c49', // primary
+    borderColor: '#006c49',
   },
   label: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#64748B',
+    fontSize: 12, // label-sm
+    fontWeight: '500',
+    color: '#3c4a42', // on-surface-variant
+    letterSpacing: 0.24, // 0.02em * 12
   },
   labelActive: {
-    color: '#FFFFFF',
+    color: '#ffffff', // on-primary
   },
 });

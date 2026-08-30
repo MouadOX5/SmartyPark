@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SmartyPark - Map View</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "error-container": "#ffdad6",
+                      "on-tertiary-container": "#711419",
+                      "warning": "#f59e0b",
+                      "slate-800": "#1e293b",
+                      "surface-bright": "#f4fbf4",
+                      "on-background": "#161d19",
+                      "error": "#ba1a1a",
+                      "slate-50": "#f8fafc",
+                      "tertiary-fixed": "#ffdad7",
+                      "inverse-surface": "#2b322d",
+                      "on-secondary-fixed": "#131b2e",
+                      "on-secondary-container": "#5c647a",
+                      "primary-fixed-dim": "#4edea3",
+                      "on-tertiary-fixed": "#410005",
+                      "on-error": "#ffffff",
+                      "on-secondary-fixed-variant": "#3f465c",
+                      "surface-variant": "#dde4dd",
+                      "success": "#10b981",
+                      "on-secondary": "#ffffff",
+                      "on-primary": "#ffffff",
+                      "slate-200": "#e2e8f0",
+                      "surface-container": "#e8f0e9",
+                      "surface-dim": "#d4dcd5",
+                      "outline-variant": "#bbcabf",
+                      "surface": "#f4fbf4",
+                      "surface-container-lowest": "#ffffff",
+                      "tertiary-container": "#fc7c78",
+                      "inverse-primary": "#4edea3",
+                      "on-tertiary": "#ffffff",
+                      "secondary-fixed-dim": "#bec6e0",
+                      "primary": "#006c49",
+                      "surface-container-low": "#eef6ee",
+                      "secondary-fixed": "#dae2fd",
+                      "primary-container": "#10b981",
+                      "secondary": "#565e74",
+                      "tertiary": "#a43a3a",
+                      "surface-tint": "#006c49",
+                      "slate-100": "#f1f5f9",
+                      "on-primary-container": "#00422b",
+                      "secondary-container": "#dae2fd",
+                      "on-error-container": "#93000a",
+                      "background": "#f4fbf4",
+                      "on-primary-fixed-variant": "#005236",
+                      "surface-container-high": "#e3eae3",
+                      "on-surface-variant": "#3c4a42",
+                      "on-surface": "#161d19",
+                      "on-primary-fixed": "#002113",
+                      "danger": "#ef4444",
+                      "surface-container-highest": "#dde4dd",
+                      "outline": "#6c7a71",
+                      "inverse-on-surface": "#ebf3eb",
+                      "tertiary-fixed-dim": "#ffb3af",
+                      "on-tertiary-fixed-variant": "#842225",
+                      "primary-fixed": "#6ffbbe"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "lg": "24px",
+                      "sm": "8px",
+                      "xs": "4px",
+                      "md": "16px",
+                      "gutter": "16px",
+                      "margin-mobile": "20px",
+                      "xl": "32px"
+              },
+              "fontFamily": {
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "headline-sm": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Inter"
+                      ],
+                      "display": [
+                              "Inter"
+                      ],
+                      "headline-lg-mobile": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "label-lg": [
+                              "Inter"
+                      ],
+                      "label-sm": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "headline-md": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-sm": [
+                              "18px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg": [
+                              "28px",
+                              {
+                                      "lineHeight": "34px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "display": [
+                              "36px",
+                              {
+                                      "lineHeight": "44px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-lg": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "500"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        .map-bg {
+            background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100%25" height="100%25"%3E%3Cdefs%3E%3Cpattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"%3E%3Cpath d="M 40 0 L 0 0 0 40" fill="none" stroke="%23e2e8f0" stroke-width="1"/%3E%3C/pattern%3E%3C/defs%3E%3Crect width="100%25" height="100%25" fill="%23f8fafc"/%3E%3Crect width="100%25" height="100%25" fill="url(%23grid)"/%3E%3C/svg%3E');
+        }
+        .pin-pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body-lg h-screen flex flex-col overflow-hidden">
+<!-- Top App Bar & Filters (Header) -->
+<header class="bg-surface flex-shrink-0 z-10 border-b border-slate-100 shadow-[0_4px_12px_rgba(0,0,0,0.02)]">
+<!-- TopAppBar Shared Component -->
+<div class="flex justify-between items-center w-full px-margin-mobile h-16">
+<div class="flex items-center gap-3 cursor-pointer">
+<img class="w-8 h-8 rounded-full object-cover border border-slate-200" data-alt="A small, modern user profile avatar showing a smiling person in a bright outdoor setting, minimal background, high key lighting, circular crop, clean professional aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6dOG1isdpLtyw-WJWpj1RUbya2bUlaklImxSA22IFSGoySiCXvU6OD1D0CymJ4HzxRGz_oM7ACYYzj_kvX341umWm7puMfJmEyzQfhZ647_fDfgGMCxxhqN1Iaop-17zfgz3Dy9pMos7LJ435THxLw0QrHunwvx9ZbAN7DVyRp-2Aa9e2YrK7Xsb4dXAM7P14ftrSNYpjybD6nu4zfeovwYAOXpw8FJQKnH_wYif7nOuRrQiwx7CCWg"/>
+<span class="text-headline-sm font-headline-sm font-bold text-primary">SmartyPark</span>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined">search</span>
+</button>
+</div>
+<!-- Search & Toggle -->
+<div class="px-margin-mobile pb-md pt-sm flex gap-sm">
+<div class="relative flex-1">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
+<input class="w-full h-12 pl-10 pr-4 bg-surface-container-low border border-slate-100 rounded-lg text-body-lg font-body-lg text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" placeholder="Rechercher un lieu..." type="text"/>
+</div>
+<!-- Toggle List/Map -->
+<div class="flex bg-surface-container-low rounded-lg p-1 border border-slate-100 h-12 items-center shrink-0">
+<button class="px-3 h-full rounded-md text-label-sm font-label-sm text-on-surface-variant flex items-center justify-center transition-colors">Liste</button>
+<button class="px-3 h-full rounded-md text-label-sm font-label-sm bg-primary text-on-primary flex items-center justify-center shadow-sm transition-colors">Carte</button>
+</div>
+</div>
+<!-- Categories -->
+<div class="px-margin-mobile pb-md flex gap-2 overflow-x-auto no-scrollbar scroll-smooth">
+<button class="px-4 py-2 rounded-full border border-slate-200 bg-surface-container-low text-on-surface text-label-sm font-label-sm whitespace-nowrap">Tous</button>
+<button class="px-4 py-2 rounded-full border border-slate-200 bg-surface text-on-surface-variant text-label-sm font-label-sm whitespace-nowrap hover:bg-surface-container-low transition-colors">Sport</button>
+<button class="px-4 py-2 rounded-full border border-slate-200 bg-surface text-on-surface-variant text-label-sm font-label-sm whitespace-nowrap hover:bg-surface-container-low transition-colors">Parcs</button>
+<button class="px-4 py-2 rounded-full border border-slate-200 bg-surface text-on-surface-variant text-label-sm font-label-sm whitespace-nowrap hover:bg-surface-container-low transition-colors">Aires de jeux</button>
+</div>
+</header>
+<!-- Map Area (Central Zone) -->
+<main class="flex-1 relative bg-slate-50 w-full overflow-hidden map-bg" data-location="Paris">
+<!-- Interactive Map Container -->
+<div class="absolute inset-0 w-full h-full" id="map-container">
+<!-- Simulated Google Maps / Urban Style Map -->
+<div class="absolute inset-0 bg-cover bg-center opacity-60" data-alt="A clean, minimalist vector map of a modern city like Paris. The map features light gray streets on a very pale green background, showcasing parks and water bodies subtly. Soft, diffused lighting, highly abstract and UI-friendly map texture, completely devoid of text labels or heavy markers." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDxMcTxUE79urQ0DrVCNl_Oees-_lpwtWGRUG6ZQvyrdg1i9l8clnaOJWqlA7NzV9_nIrZGpbZWeTGTfrvHXQoXhWFbRqjcQZoppx2VUCkXb8faEN2p8cwtZImM4h0jLJqEgRAXSRtQwZYNqP1lFy5BRmIdb6bqfgdBmb70zAlEblTG3qp3C_ox7vVQMHh1qnVyC2kANY6Xh_x4ujraIwUR-9UiOxVq1huoAO2v2dvwo_rqjiRXSvC7zg')"></div>
+<!-- Pins -->
+<!-- Green Pin (Fluid) -->
+<div class="absolute top-[30%] left-[25%] -translate-x-1/2 -translate-y-full cursor-pointer group">
+<div class="relative flex items-center justify-center">
+<div class="w-8 h-8 bg-success rounded-full flex items-center justify-center border-2 border-white shadow-[0_4px_12px_rgba(16,185,129,0.3)] pin-pulse">
+<span class="material-symbols-outlined text-white text-[16px]" style="font-variation-settings: 'FILL' 1;">park</span>
+</div>
+<div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-success"></div>
+</div>
+</div>
+<!-- Orange Pin (Modéré) -->
+<div class="absolute top-[45%] left-[60%] -translate-x-1/2 -translate-y-full cursor-pointer group">
+<div class="relative flex items-center justify-center">
+<div class="w-8 h-8 bg-warning rounded-full flex items-center justify-center border-2 border-white shadow-[0_4px_12px_rgba(245,158,11,0.3)] z-10 scale-110">
+<span class="material-symbols-outlined text-white text-[16px]" style="font-variation-settings: 'FILL' 1;">park</span>
+</div>
+<div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-warning z-10"></div>
+</div>
+</div>
+<!-- Red Pin (Chargé) -->
+<div class="absolute top-[70%] left-[40%] -translate-x-1/2 -translate-y-full cursor-pointer group">
+<div class="relative flex items-center justify-center">
+<div class="w-8 h-8 bg-danger rounded-full flex items-center justify-center border-2 border-white shadow-[0_4px_12px_rgba(239,68,68,0.3)]">
+<span class="material-symbols-outlined text-white text-[16px]" style="font-variation-settings: 'FILL' 1;">park</span>
+</div>
+<div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-danger"></div>
+</div>
+</div>
+<!-- Green Pin (Fluid) 2 -->
+<div class="absolute top-[20%] left-[75%] -translate-x-1/2 -translate-y-full cursor-pointer group">
+<div class="relative flex items-center justify-center">
+<div class="w-8 h-8 bg-success rounded-full flex items-center justify-center border-2 border-white shadow-[0_4px_12px_rgba(16,185,129,0.3)]">
+<span class="material-symbols-outlined text-white text-[16px]" style="font-variation-settings: 'FILL' 1;">directions_run</span>
+</div>
+<div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-success"></div>
+</div>
+</div>
+</div>
+<!-- Floating Preview Card -->
+<div class="absolute bottom-24 left-0 w-full px-margin-mobile z-20 pointer-events-none">
+<div class="bg-surface rounded-xl p-3 shadow-[0_8px_24px_rgba(0,0,0,0.06)] border border-slate-100 flex items-center gap-md pointer-events-auto cursor-pointer hover:bg-surface-bright transition-colors">
+<!-- Thumbnail -->
+<div class="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-slate-200">
+<img class="w-full h-full object-cover" data-alt="A beautiful, vibrant outdoor shot of Parc Monceau in Paris. Lush green trees, a clear blue sky, and a clean paved walkway. People are lightly strolling. The lighting is bright daytime, creating a cheerful and inviting atmosphere. Modern, high-resolution photography suitable for an app thumbnail." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-9rIvScbTlPtMX0fC7YItoOeF8rDD5mx7CGANwj7qFUh6aZ_Yoi5pGKRs34iFN7BQVW9on_NGPZSbdXAJcaf8jsULs4aqqeZYCFWd83lVIuUTqR_u7ty4W51wqht9744f5ILN4AlrxalEeBtiCigpSLEuPVgwpdZIUGdCBipfe61n-SnWSocOy8T1EW0K-ylMqeuID6vpQfl8RVhCY1oARUakAr5hRutXt-KTTOgVam5rZQBgDOSWxQ"/>
+</div>
+<!-- Info -->
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start mb-1">
+<h3 class="text-headline-sm font-headline-sm text-on-surface truncate pr-2">Parc Monceau</h3>
+<div class="flex items-center gap-1 text-on-surface-variant flex-shrink-0">
+<span class="material-symbols-outlined text-[16px]">near_me</span>
+<span class="text-label-sm font-label-sm">0.8 km</span>
+</div>
+</div>
+<p class="text-body-md font-body-md text-on-surface-variant truncate mb-2">Parc urbain paysager</p>
+<!-- Status Badge -->
+<div class="inline-flex items-center gap-1 bg-[#fff3cd] text-[#856404] px-2 py-1 rounded-full border border-[#ffeeba]">
+<div class="w-2 h-2 rounded-full bg-warning"></div>
+<span class="text-label-sm font-label-sm font-medium">65% - Modéré</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="bg-surface border-t border-slate-100 shadow-sm flex-shrink-0 z-30 pb-safe md:hidden h-20">
+<!-- BottomNavBar Shared Component Structure -->
+<div class="flex justify-around items-center w-full h-full">
+<!-- Active Tab: Map/List -->
+<button class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-5 py-1 scale-95 transition-transform duration-200">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">map</span>
+<span class="text-label-sm font-label-sm">Map/List</span>
+</button>
+<!-- Inactive Tab: My Spaces -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant px-5 py-1 hover:bg-surface-container transition-all rounded-full">
+<span class="material-symbols-outlined mb-1">bookmark</span>
+<span class="text-label-sm font-label-sm">My Spaces</span>
+</button>
+<!-- Inactive Tab: Profile -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant px-5 py-1 hover:bg-surface-container transition-all rounded-full">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="text-label-sm font-label-sm">Profile</span>
+</button>
+</div>
+</nav>
+</body></html>

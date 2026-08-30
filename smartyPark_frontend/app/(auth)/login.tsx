@@ -9,15 +9,13 @@ import {
   Platform,
   StatusBar,
   Alert,
-  Image,
+  TextInput,
+  ActivityIndicator
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, useRouter } from 'expo-router';
-import { Mail, Lock } from 'lucide-react-native';
+import { BarChart3 } from 'lucide-react-native';
 import { useAuth } from '../../src/context/AuthContext';
-import { Input } from '../../src/components/ui/Input';
-import { Button } from '../../src/components/ui/Button';
-import { COLORS } from '../../src/constants/colors';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -59,8 +57,13 @@ export default function LoginScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+      <StatusBar barStyle="dark-content" backgroundColor="#f9f9ff" />
+      
+      {/* Decorative background elements */}
+      <View style={[styles.decorativeCircle, styles.circleTopLeft]} />
+      <View style={[styles.decorativeCircle, styles.circleBottomRight]} />
+
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -70,69 +73,71 @@ export default function LoginScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Logo & Titre */}
-          <View style={styles.hero}>
+          {/* Logo Header */}
+          <View style={styles.header}>
             <View style={styles.logoContainer}>
-              <View style={styles.logoCircle}>
-                <Text style={styles.logoEmoji}>🏟️</Text>
-              </View>
+              <BarChart3 size={36} color="#006c49" />
             </View>
-            <Text style={styles.appName}>SmartyPark</Text>
-            <Text style={styles.tagline}>
-              Comprenez vos espaces, instantanément.
-            </Text>
+            <Text style={styles.title}>SmartyPark</Text>
+            <Text style={styles.subtitle}>Understand your space, instantly.</Text>
           </View>
 
-          {/* Formulaire */}
-          <View style={styles.form}>
-            <Text style={styles.formTitle}>Connexion</Text>
-            <Text style={styles.formSubtitle}>
-              Bienvenue ! Entrez vos identifiants pour continuer.
-            </Text>
+          {/* Form Container */}
+          <View style={styles.formContainer}>
+            <Text style={styles.formTitle}>Welcome back</Text>
 
-            <View style={styles.formFields}>
-              <Input
-                label="Email"
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Email</Text>
+              <TextInput
+                style={[styles.input, errors.email ? styles.inputError : null]}
                 value={email}
                 onChangeText={setEmail}
-                placeholder="votre@email.com"
+                placeholder="Enter your email"
+                placeholderTextColor="#6c7a71"
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoComplete="email"
-                error={errors.email}
-                leftIcon={<Mail size={18} color="#94A3B8" />}
+                editable={!isLoading}
               />
-              <Input
-                label="Mot de passe"
+              {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Password</Text>
+              <TextInput
+                style={[styles.input, errors.password ? styles.inputError : null]}
                 value={password}
                 onChangeText={setPassword}
                 placeholder="••••••••"
-                isPassword
-                error={errors.password}
-                leftIcon={<Lock size={18} color="#94A3B8" />}
+                placeholderTextColor="#6c7a71"
+                secureTextEntry
+                editable={!isLoading}
               />
+              {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
+              <View style={styles.forgotPasswordContainer}>
+                <TouchableOpacity disabled={isLoading}>
+                  <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+                </TouchableOpacity>
+              </View>
             </View>
 
-            <Button
-              title={isLoading ? 'Connexion...' : 'Se connecter'}
+            <TouchableOpacity 
+              style={[styles.button, isLoading && styles.buttonDisabled]} 
               onPress={handleLogin}
-              loading={isLoading}
               disabled={isLoading}
-              size="lg"
-            />
+              activeOpacity={0.8}
+            >
+              {isLoading ? (
+                <ActivityIndicator color="#ffffff" />
+              ) : (
+                <Text style={styles.buttonText}>Se connecter</Text>
+              )}
+            </TouchableOpacity>
 
-            {/* Séparateur */}
-            <View style={styles.separator}>
-              <View style={styles.line} />
-              <Text style={styles.separatorText}>ou</Text>
-              <View style={styles.line} />
-            </View>
-
-            {/* Lien inscription */}
-            <View style={styles.registerRow}>
-              <Text style={styles.registerText}>Pas encore de compte ? </Text>
+            <View style={styles.footer}>
+              <Text style={styles.footerText}>Don't have an account? </Text>
               <Link href="/(auth)/register" asChild>
-                <TouchableOpacity activeOpacity={0.7}>
+                <TouchableOpacity activeOpacity={0.7} disabled={isLoading}>
                   <Text style={styles.registerLink}>S'inscrire</Text>
                 </TouchableOpacity>
               </Link>
@@ -140,6 +145,14 @@ export default function LoginScreen() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+      
+      {/* Loading State Overlay */}
+      {isLoading && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color="#006c49" />
+          <Text style={styles.loadingText}>Authenticating...</Text>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
@@ -147,102 +160,169 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#f9f9ff',
   },
   flex: {
     flex: 1,
   },
   scroll: {
     flexGrow: 1,
-    paddingBottom: 40,
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 40,
+    minHeight: '100%',
   },
-  hero: {
+  decorativeCircle: {
+    position: 'absolute',
+    width: 300,
+    height: 300,
+    borderRadius: 150,
+  },
+  circleTopLeft: {
+    top: '-10%',
+    left: '-20%',
+    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+  },
+  circleBottomRight: {
+    bottom: '-10%',
+    right: '-20%',
+    backgroundColor: 'rgba(226, 232, 248, 0.4)',
+  },
+  header: {
     alignItems: 'center',
-    paddingTop: 40,
-    paddingBottom: 32,
-    backgroundColor: '#FFFFFF',
+    marginBottom: 32,
+    zIndex: 10,
   },
   logoContainer: {
-    marginBottom: 16,
-  },
-  logoCircle: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    backgroundColor: COLORS.primarySoft,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#10b981',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.25,
-    shadowRadius: 16,
-    elevation: 8,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    elevation: 2,
   },
-  logoEmoji: {
-    fontSize: 44,
+  title: {
+    fontSize: 36,
+    fontWeight: '700',
+    color: '#006c49',
+    letterSpacing: -0.72,
   },
-  appName: {
-    fontSize: 32,
-    fontWeight: '800',
-    color: COLORS.primary,
-    letterSpacing: -1,
-    marginBottom: 6,
+  subtitle: {
+    fontSize: 14,
+    color: '#3c4a42',
+    marginTop: 8,
   },
-  tagline: {
-    fontSize: 15,
-    color: '#64748B',
-    textAlign: 'center',
-    paddingHorizontal: 32,
-  },
-  form: {
-    flex: 1,
-    paddingHorizontal: 24,
-    paddingTop: 8,
+  formContainer: {
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 24,
+    borderColor: '#d3daea',
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 24,
+    elevation: 4,
+    zIndex: 10,
   },
   formTitle: {
-    fontSize: 26,
-    fontWeight: '800',
-    color: '#0F172A',
-    marginBottom: 6,
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#151c27',
+    marginBottom: 24,
   },
-  formSubtitle: {
-    fontSize: 15,
-    color: '#64748B',
-    marginBottom: 28,
-    lineHeight: 22,
+  inputGroup: {
+    marginBottom: 16,
   },
-  formFields: {
-    marginBottom: 8,
+  label: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#3c4a42',
+    marginBottom: 4,
   },
-  separator: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 24,
+  input: {
+    height: 48,
+    paddingHorizontal: 16,
+    backgroundColor: '#f9f9ff',
+    borderColor: '#bbcabf',
+    borderWidth: 1,
+    borderRadius: 8,
+    fontSize: 14,
+    color: '#151c27',
   },
-  line: {
-    flex: 1,
-    height: 1,
-    backgroundColor: '#E2E8F0',
+  inputError: {
+    borderColor: '#ba1a1a',
   },
-  separatorText: {
-    marginHorizontal: 12,
-    fontSize: 13,
-    color: '#94A3B8',
+  errorText: {
+    color: '#ba1a1a',
+    fontSize: 12,
+    marginTop: 4,
+  },
+  forgotPasswordContainer: {
+    alignItems: 'flex-end',
+    marginTop: 4,
+  },
+  forgotPasswordText: {
+    fontSize: 12,
+    color: '#006c49',
     fontWeight: '500',
   },
-  registerRow: {
+  button: {
+    height: 48,
+    backgroundColor: '#006c49',
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  buttonDisabled: {
+    opacity: 0.7,
+  },
+  buttonText: {
+    color: '#ffffff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  footer: {
+    marginTop: 24,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(187, 202, 191, 0.3)',
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  registerText: {
-    fontSize: 15,
-    color: '#64748B',
+  footerText: {
+    fontSize: 14,
+    color: '#3c4a42',
   },
   registerLink: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: COLORS.primary,
-    textDecorationLine: 'underline',
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#006c49',
   },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(249, 249, 255, 0.8)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 50,
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#006c49',
+  }
 });

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SmartyPark - Espaces Publics</title>
+<!-- Fonts & Icons -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "secondary": "#565e74",
+                        "on-surface": "#161d19",
+                        "surface-tint": "#006c49",
+                        "on-secondary-fixed-variant": "#3f465c",
+                        "slate-100": "#f1f5f9",
+                        "on-secondary-container": "#5c647a",
+                        "tertiary-container": "#fc7c78",
+                        "secondary-fixed-dim": "#bec6e0",
+                        "outline": "#6c7a71",
+                        "on-tertiary-container": "#711419",
+                        "on-primary-container": "#00422b",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-fixed": "#410005",
+                        "primary-fixed-dim": "#4edea3",
+                        "on-secondary": "#ffffff",
+                        "slate-200": "#e2e8f0",
+                        "on-background": "#161d19",
+                        "surface-container-low": "#eef6ee",
+                        "on-secondary-fixed": "#131b2e",
+                        "surface-container": "#e8f0e9",
+                        "background": "#f4fbf4",
+                        "primary-container": "#10b981",
+                        "slate-800": "#1e293b",
+                        "on-primary": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "surface-variant": "#dde4dd",
+                        "surface": "#f4fbf4",
+                        "on-surface-variant": "#3c4a42",
+                        "tertiary": "#a43a3a",
+                        "surface-container-highest": "#dde4dd",
+                        "inverse-on-surface": "#ebf3eb",
+                        "tertiary-fixed-dim": "#ffb3af",
+                        "error-container": "#ffdad6",
+                        "danger": "#ef4444",
+                        "primary": "#006c49",
+                        "surface-bright": "#f4fbf4",
+                        "tertiary-fixed": "#ffdad7",
+                        "surface-dim": "#d4dcd5",
+                        "primary-fixed": "#6ffbbe",
+                        "inverse-surface": "#2b322d",
+                        "on-tertiary-fixed-variant": "#842225",
+                        "inverse-primary": "#4edea3",
+                        "warning": "#f59e0b",
+                        "secondary-fixed": "#dae2fd",
+                        "on-error": "#ffffff",
+                        "on-primary-fixed-variant": "#005236",
+                        "surface-container-high": "#e3eae3",
+                        "secondary-container": "#dae2fd",
+                        "on-primary-fixed": "#002113",
+                        "error": "#ba1a1a",
+                        "slate-50": "#f8fafc",
+                        "outline-variant": "#bbcabf",
+                        "on-error-container": "#93000a",
+                        "success": "#10b981"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "margin-mobile": "20px",
+                        "md": "16px",
+                        "sm": "8px",
+                        "xs": "4px",
+                        "lg": "24px",
+                        "gutter": "16px",
+                        "xl": "32px"
+                    },
+                    fontFamily: {
+                        "headline-lg": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "display": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "label-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-sm": ["Inter"]
+                    },
+                    fontSize: {
+                        "headline-lg": ["28px", { "lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }]
+                    },
+                    boxShadow: {
+                        'ambient': '0 12px 24px -4px rgba(15, 23, 42, 0.04)',
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Custom scrollbar for horizontal lists */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-lg min-h-screen flex flex-col pt-16 pb-24 md:pb-0 antialiased [text-rendering:optimizeLegibility]">
+<!-- TopAppBar (JSON Shared Component) -->
+<header class="bg-surface text-primary flex justify-between items-center w-full px-margin-mobile h-16 border-b border-slate-100 docked full-width top-0 fixed z-40">
+<div class="flex items-center gap-3 hover:bg-surface-container-low transition-colors rounded-full p-1 cursor-pointer">
+<div class="w-8 h-8 rounded-full overflow-hidden bg-surface-variant flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="A close-up, high-quality profile portrait of a modern urban citizen smiling softly in natural daylight. The lighting is bright and airy, reflecting a clean, smart-city aesthetic. The background is slightly blurred showing subtle greenery, fitting the eco-friendly app theme. Colors are natural and inviting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQhbMc0gT2gVWMokC8egW-kZAjodra85Ev93F4BdsxRPUkTgEPT5qrQWEWAoeeakZtg5jzLGYlctiKiKXnd1VtTUk0QYx4oZ5rAz5E-JND2mIbL9LgObX8_tO2840MJjwVsbZM5AjAzTdxbwRYg6aSusMiuSw0_Gf8R541Oh5kojHc1ahoQvrlY46S9lqppzGBlh7YkKf9CHo6tNlBtLy269ucQCfVS2DkuaCGNsFx3qPn377emPydsw"/>
+</div>
+<h1 class="text-headline-sm font-headline-sm font-bold text-primary">SmartyPark</h1>
+</div>
+<button class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-primary">search</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 w-full max-w-7xl mx-auto px-margin-mobile md:px-lg flex flex-col gap-lg mt-md">
+<!-- Controls Section -->
+<section class="flex flex-col gap-md sticky top-16 z-30 bg-background pt-sm pb-sm">
+<!-- Search & Toggle Row -->
+<div class="flex items-center gap-sm">
+<div class="relative flex-1">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-200 bg-surface-container-lowest text-body-md font-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all shadow-sm" placeholder="Rechercher un espace..." type="text"/>
+</div>
+<!-- View Toggle (Carte vs Liste) -->
+<div class="flex bg-surface-container rounded-lg p-1 shadow-inner border border-slate-100">
+<button class="px-3 py-1.5 rounded bg-surface-container-lowest text-on-surface text-label-sm font-label-sm shadow-sm flex items-center gap-1 transition-all">
+<span class="material-symbols-outlined text-[18px]">list</span>
+                        Liste
+                    </button>
+<button class="px-3 py-1.5 rounded text-on-surface-variant text-label-sm font-label-sm hover:bg-surface-container-low flex items-center gap-1 transition-all">
+<span class="material-symbols-outlined text-[18px]">map</span>
+                        Carte
+                    </button>
+</div>
+</div>
+<!-- Category Filter Pills (Horizontal Scroll) -->
+<div class="flex overflow-x-auto hide-scrollbar gap-sm pb-1">
+<button class="whitespace-nowrap px-4 py-2 rounded-full bg-primary text-on-primary text-label-sm font-label-sm transition-transform active:scale-95 shadow-sm">
+                    Tous
+                </button>
+<button class="whitespace-nowrap px-4 py-2 rounded-full bg-surface-container-lowest border border-slate-200 text-on-surface-variant hover:border-primary hover:text-primary text-label-sm font-label-sm transition-colors shadow-sm">Foot</button>
+<button class="whitespace-nowrap px-4 py-2 rounded-full bg-surface-container-lowest border border-slate-200 text-on-surface-variant hover:border-primary hover:text-primary text-label-sm font-label-sm transition-colors shadow-sm">Basket</button>
+<button class="whitespace-nowrap px-4 py-2 rounded-full bg-surface-container-lowest border border-slate-200 text-on-surface-variant hover:border-primary hover:text-primary text-label-sm font-label-sm transition-colors shadow-sm">Street</button>
+<button class="whitespace-nowrap px-4 py-2 rounded-full bg-surface-container-lowest border border-slate-200 text-on-surface-variant hover:border-primary hover:text-primary text-label-sm font-label-sm transition-colors shadow-sm">Enfants</button>
+</div>
+</section>
+<!-- List View Content (Bento-inspired Grid) -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
+<!-- Card 1 (Parc Monceau) -->
+<article class="bg-surface-container-lowest rounded-xl border border-slate-100 shadow-ambient overflow-hidden flex flex-col group cursor-pointer hover:shadow-lg transition-shadow duration-300">
+<div class="relative h-48 w-full overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A wide architectural photography shot of a lush, beautifully manicured urban park in Paris during late spring. Sunlight filters through large mature trees, casting dappled shadows on clean gravel pathways. The style is modern, bright, and inviting, reflecting a highly desirable public space in a clean smart-city ecosystem." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCe-staVayBgdiN2rrF6wjP3ElH2V6z3gl-p2hfnCgHdD_GJpOjEoxOw0wK-5hdoGY8ZcviG_rmyzYFohv_GrgO1_28TBiBw_mITbwfDp13CXApnlSAUNGRrR2wDMM4c9spaWRK7Z1AETR5j5poOIIqqUg9ptmioFOFCTIWpin-as5m65vE-S6SNK_b1CLKxCGFZUtlaxDw-cE9kYyiBouzC7tDIa0xK_n_vrF9EL9phkKp76lNmov8tg"/>
+<div class="absolute top-3 right-3 bg-surface-container-lowest/90 backdrop-blur-sm px-2 py-1 rounded text-label-sm font-label-sm text-on-surface shadow-sm flex items-center gap-1 border border-white/50"><span class="material-symbols-outlined text-[16px] text-primary">location_on</span> 200 m</div>
+</div>
+<div class="p-md flex flex-col gap-sm flex-1">
+<div class="flex justify-between items-start">
+<div>
+<span class="text-label-sm font-label-sm text-primary uppercase tracking-wider">ENFANTS</span>
+<h2 class="text-headline-md font-headline-md text-on-surface mt-1">Aire Monceau</h2>
+</div>
+<button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant">bookmark_border</span>
+</button>
+</div>
+<div class="mt-auto pt-sm flex items-center gap-2">
+<!-- Affluence Indicator (Amber/Moderate) -->
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-warning/15 border border-warning/20"><div class="w-2 h-2 rounded-full bg-warning animate-pulse"></div><span class="text-label-sm font-label-sm text-warning font-semibold">75% - Presque saturé</span></div>
+</div>
+</div>
+</article>
+<!-- Card 2 (Terrain de Basket) -->
+<article class="bg-surface-container-lowest rounded-xl border border-slate-100 shadow-ambient overflow-hidden flex flex-col group cursor-pointer hover:shadow-lg transition-shadow duration-300">
+<div class="relative h-48 w-full overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A dynamic, low-angle shot of a vibrant, freshly painted outdoor public basketball court in an urban setting. The court surface features geometric patterns in teal and coral. The scene is brightly lit by afternoon sun, emphasizing a clean, active, and well-maintained civic sports facility." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDSQOU8YU1bm-kgtw6j8QxxnznM3WSQRC40tnvw8v_3D9ehq3QL6LlXrRPfi9-ytNH4Z8RYHBd-GsLC8-PxnzdVlhSkHFgIb3Yzm-_en5jYCIj7Jhk8mJLLxYqMVfWrZgZVPIDgXGngJ7A5qTfHmXsgJXyDZntnMPy-9Qc-dPmnMesmoxDPyHcRof_5vuVZPXu-2sS6VnvnNzces1D_SKpFpsDExC14LIhA8h12EtEFp4ZzmbgtT1NkTw"/>
+<div class="absolute top-3 right-3 bg-surface-container-lowest/90 backdrop-blur-sm px-2 py-1 rounded text-label-sm font-label-sm text-on-surface shadow-sm flex items-center gap-1 border border-white/50"><span class="material-symbols-outlined text-[16px] text-primary">location_on</span> 80 m</div>
+</div>
+<div class="p-md flex flex-col gap-sm flex-1">
+<div class="flex justify-between items-start">
+<div>
+<span class="text-label-sm font-label-sm text-primary uppercase tracking-wider">BASKET</span>
+<h2 class="text-headline-md font-headline-md text-on-surface mt-1">Terrain Stalingrad</h2>
+</div>
+<button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant">bookmark_border</span>
+</button>
+</div>
+<div class="mt-auto pt-sm flex items-center gap-2">
+<!-- Affluence Indicator (Red/Busy) -->
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-danger/15 border border-danger/20">
+<div class="w-2 h-2 rounded-full bg-danger"></div>
+<span class="text-label-sm font-label-sm text-danger font-semibold">90% - Saturé</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Card 3 (Bibliothèque) -->
+<article class="bg-surface-container-lowest rounded-xl border border-slate-100 shadow-ambient overflow-hidden flex flex-col group cursor-pointer hover:shadow-lg transition-shadow duration-300">
+<div class="relative h-48 w-full overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A clean, minimalist interior shot of a modern public library with large floor-to-ceiling windows letting in abundant natural light. Wooden shelves are neatly organized. The atmosphere is quiet, serene, and technologically equipped, perfectly matching a bright, light-mode smart city aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCx2rZ1httADa9CnhuCYVRiE7zlFcAdmkN8dAj0_myP1_H5OLMS8NAqQ52PO80Bkeq-l3BAiK06fJsSHIYJ4T2URsdj09llAfSpMxhKXsqEqEFEVH1Xd6bhltx8CEBrL2YtGaZbbqYgskphb_31RhBRqjrqSR3XgSeKz3KPjeVNEyGqTZPpvuSy5lHmcB_8_xpOV-IT5WtJE8QkDXl6RPuzuQiqnNG063jfEd3jOgCneqCqAbxsphzU2w"/>
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container border border-slate-200"><span class="material-symbols-outlined text-[16px] text-on-surface-variant">schedule</span><span class="text-label-sm font-label-sm text-on-surface-variant font-semibold">Présence depuis 1h15</span></div>
+</div>
+<div class="p-md flex flex-col gap-sm flex-1">
+<div class="flex justify-between items-start">
+<div>
+<span class="text-label-sm font-label-sm text-primary uppercase tracking-wider">STREET</span>
+<h2 class="text-headline-md font-headline-md text-on-surface mt-1">Street Park Centre</h2>
+</div>
+<button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">bookmark</span>
+</button>
+</div>
+<div class="mt-auto pt-sm flex items-center gap-2">
+<!-- Affluence Indicator (Green/Quiet) -->
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container border border-slate-200"><span class="material-symbols-outlined text-[16px] text-on-surface-variant">schedule</span><span class="text-label-sm font-label-sm text-on-surface-variant font-semibold">Présence depuis 1h15</span></div>
+</div>
+</div>
+</article>
+</section>
+</main>
+<!-- BottomNavBar (JSON Shared Component) -->
+<button class="fixed bottom-24 right-4 z-40 flex items-center gap-2 bg-primary text-on-primary px-4 py-3 rounded-full shadow-lg hover:bg-primary-container hover:text-on-primary-container transition-all active:scale-95">
+<span class="material-symbols-outlined">add</span>
+<span class="font-label-sm">Proposer un espace</span>
+</button><nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-20 pb-safe bg-surface border-t border-slate-100 shadow-sm docked rounded-t-xl"><!-- Tab 1: Explorer (Active) -->
+<button class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-5 py-1 scale-95 transition-transform duration-200">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">explore</span>
+<span class="text-label-sm font-label-sm mt-1">Explorer</span>
+</button>
+<!-- Tab 2: Proposer (Emphasized) -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant px-5 py-1 hover:bg-surface-container transition-all">
+<div class="bg-primary/10 p-2 rounded-full">
+<span class="material-symbols-outlined text-primary">add_circle</span>
+</div>
+<span class="text-label-sm font-label-sm mt-1">Proposer</span>
+</button>
+<!-- Tab 3: Profil -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant px-5 py-1 hover:bg-surface-container transition-all">
+<span class="material-symbols-outlined">person</span>
+<span class="text-label-sm font-label-sm mt-1">Profil</span>
+</button></nav>
+</body></html>

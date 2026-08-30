@@ -1,0 +1,244 @@
+<!DOCTYPE html><html class="light" lang="fr" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Détails de l'espace public - SmartyPark</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary": "#565e74",
+                        "on-surface": "#161d19",
+                        "surface-tint": "#006c49",
+                        "on-secondary-fixed-variant": "#3f465c",
+                        "slate-100": "#f1f5f9",
+                        "on-secondary-container": "#5c647a",
+                        "tertiary-container": "#fc7c78",
+                        "secondary-fixed-dim": "#bec6e0",
+                        "outline": "#6c7a71",
+                        "on-tertiary-container": "#711419",
+                        "on-primary-container": "#00422b",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-fixed": "#410005",
+                        "primary-fixed-dim": "#4edea3",
+                        "on-secondary": "#ffffff",
+                        "slate-200": "#e2e8f0",
+                        "on-background": "#161d19",
+                        "surface-container-low": "#eef6ee",
+                        "on-secondary-fixed": "#131b2e",
+                        "surface-container": "#e8f0e9",
+                        "background": "#f4fbf4",
+                        "primary-container": "#10b981",
+                        "slate-800": "#1e293b",
+                        "on-primary": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "surface-variant": "#dde4dd",
+                        "surface": "#f4fbf4",
+                        "on-surface-variant": "#3c4a42",
+                        "tertiary": "#a43a3a",
+                        "surface-container-highest": "#dde4dd",
+                        "inverse-on-surface": "#ebf3eb",
+                        "tertiary-fixed-dim": "#ffb3af",
+                        "error-container": "#ffdad6",
+                        "danger": "#ef4444",
+                        "primary": "#006c49",
+                        "surface-bright": "#f4fbf4",
+                        "tertiary-fixed": "#ffdad7",
+                        "surface-dim": "#d4dcd5",
+                        "primary-fixed": "#6ffbbe",
+                        "inverse-surface": "#2b322d",
+                        "on-tertiary-fixed-variant": "#842225",
+                        "inverse-primary": "#4edea3",
+                        "warning": "#f59e0b",
+                        "secondary-fixed": "#dae2fd",
+                        "on-error": "#ffffff",
+                        "on-primary-fixed-variant": "#005236",
+                        "surface-container-high": "#e3eae3",
+                        "secondary-container": "#dae2fd",
+                        "on-primary-fixed": "#002113",
+                        "error": "#ba1a1a",
+                        "slate-50": "#f8fafc",
+                        "outline-variant": "#bbcabf",
+                        "on-error-container": "#93000a",
+                        "success": "#10b981"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "20px",
+                        "md": "16px",
+                        "sm": "8px",
+                        "xs": "4px",
+                        "lg": "24px",
+                        "gutter": "16px",
+                        "xl": "32px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "display": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "label-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["28px", { "lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background antialiased min-h-screen flex flex-col pb-[100px]">
+<!-- Hero Image & Transparent Header -->
+<div class="relative w-full h-[45vh] min-h-[300px]">
+<div class="absolute inset-0 w-full h-full bg-cover bg-center" data-alt="A wide, stunning aerial photograph of Parc des Tuileries in Paris on a bright, sunny afternoon. The image showcases manicured green lawns, perfectly aligned trees, and wide gravel paths filled with strolling citizens. The lighting is bright and clear, reflecting a modern, optimistic urban smart-city vibe. A subtle, light overlay enhances legibility for the UI elements layered on top." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCFHH4PPeZjM8hpoDRGbNI3mEtYveOXmNLa_3BqkahYAjaiB3knlzInIjv6Z1FoTDWZ0MSSITqbq71ysVIXac_7KF_3LoA6VoKpZDkmp-urrT9wMV4GDxj48bp2v2g4DoG1WjQbNv6NKzwcjKRhqrtXmoX2A9norhGGWsECUTgPKsY7OEcjVC3o_xmjZw4EDUoIGcDUFPIvXh6W8isO7yT1J-Jrg1xpND2wZBImDbfsgH43eU9dgPWsBQ')"></div>
+<div class="absolute inset-0 bg-gradient-to-b from-slate-800/40 via-transparent to-surface-container-highest"></div>
+<!-- Header -->
+<header class="absolute top-0 left-0 w-full z-10 p-margin-mobile flex justify-between items-center h-16">
+<button class="w-10 h-10 rounded-full bg-surface-container-lowest/20 backdrop-blur-md flex items-center justify-center text-on-primary hover:bg-surface-container-lowest/30 transition-colors">
+<span class="material-symbols-outlined" data-weight="fill" style="font-variation-settings: 'FILL' 1;">arrow_back</span>
+</button>
+<button class="w-10 h-10 rounded-full bg-surface-container-lowest/20 backdrop-blur-md flex items-center justify-center text-on-primary hover:bg-surface-container-lowest/30 transition-colors">
+<span class="material-symbols-outlined" data-weight="fill" style="font-variation-settings: 'FILL' 1;">ios_share</span>
+</button>
+</header>
+<!-- Affluence Quick Status Overlay -->
+
+</div>
+<!-- Main Content -->
+<main class="flex-1 -mt-6 relative z-20 rounded-t-xl bg-surface">
+<!-- Title Section -->
+<div class="px-margin-mobile pt-lg pb-md">
+<div class="flex items-start justify-between gap-4">
+<div>
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-container/15 text-primary font-label-sm text-label-sm mb-2">
+<span class="material-symbols-outlined text-[14px]">park</span>
+                        Espace Vert
+                    </span>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-surface mb-2">Parc des Tuileries</h1>
+<p class="font-body-md text-body-md text-on-surface-variant flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px]">location_on</span>
+                        113 Rue de Rivoli, 75001 Paris
+                    </p>
+</div>
+</div>
+<div class="mt-4 flex items-center gap-2 text-primary font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px] text-primary">verified</span>
+                Validé par la communauté
+            </div>
+</div>
+<!-- Info Grid -->
+<div class="px-margin-mobile py-md grid grid-cols-1 md:grid-cols-2 gap-md">
+<!-- Horaires Card -->
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-slate-100 flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-primary-container/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">schedule</span>
+</div>
+<div>
+<h3 class="font-label-lg text-label-lg text-on-surface mb-1">Horaires</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">
+<span class="text-success font-medium">Ouvert</span> • 07:00 - 21:00
+                    </p>
+</div>
+</div>
+<!-- Équipements Card -->
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-slate-100">
+<h3 class="font-label-lg text-label-lg text-on-surface mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">build</span>
+                    Équipements
+                </h3>
+<div class="flex gap-4">
+<div class="flex flex-col items-center gap-1">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined">wc</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant text-center">Toilettes</span>
+</div>
+<div class="flex flex-col items-center gap-1"><div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant"><span class="material-symbols-outlined">airline_seat_recline_extra</span></div><span class="font-label-sm text-label-sm text-on-surface-variant text-center">Bancs</span></div>
+<div class="flex flex-col items-center gap-1">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined">water_drop</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant text-center">Eau</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Real-time Affluence Section -->
+<div class="px-margin-mobile py-md">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-md">Affluence en temps réel</h2>
+<div class="bg-surface-container-lowest rounded-xl p-lg shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-slate-100">
+<div class="flex flex-col md:flex-row items-center justify-between gap-lg">
+<!-- Gauge -->
+<div class="relative w-40 h-40 flex items-center justify-center">
+<svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+<!-- Background circle -->
+<circle cx="50" cy="50" fill="none" r="45" stroke="#f1f5f9" stroke-dasharray="283" stroke-dashoffset="0" stroke-width="10"></circle>
+<!-- Progress circle -->
+<circle class="transition-all duration-1000 ease-out" cx="50" cy="50" fill="none" r="45" stroke="#10b981" stroke-dasharray="283" stroke-dashoffset="164" stroke-width="10"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="font-display text-display text-on-surface">42<span class="text-2xl">%</span></span>
+</div>
+</div>
+<!-- Status Text & Chart -->
+<div class="flex-1 w-full">
+<div class="text-center md:text-left mb-6">
+<h3 class="font-headline-sm text-headline-sm text-success mb-1">Affluence faible</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Idéal pour une visite</p>
+</div>
+<!-- Mini Trend Chart -->
+<div class="h-16 flex items-end justify-between gap-1 mt-4">
+<!-- Bars (last 6 hours) -->
+<div class="w-full bg-surface-container-low rounded-t-sm h-[30%]"></div>
+<div class="w-full bg-surface-container-low rounded-t-sm h-[40%]"></div>
+<div class="w-full bg-surface-container-low rounded-t-sm h-[50%]"></div>
+<div class="w-full bg-surface-container-low rounded-t-sm h-[65%]"></div>
+<div class="w-full bg-surface-container-low rounded-t-sm h-[55%]"></div>
+<div class="w-full bg-success rounded-t-sm h-[42%] relative">
+<div class="absolute -top-5 left-1/2 -translate-x-1/2 font-label-sm text-label-sm text-success">Maintenant</div>
+</div>
+</div>
+<div class="flex justify-between mt-1 text-[10px] text-on-surface-variant font-medium">
+<span class="">Il y a 6h</span>
+<span></span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Fixed Action Zone -->
+<div class="fixed bottom-0 left-0 w-full bg-surface-container-lowest border-t border-slate-100 p-margin-mobile pb-safe z-50 shadow-[0_-4px_12px_rgba(0,0,0,0.04)]">
+<div class="flex gap-md max-w-3xl mx-auto">
+<button class="flex-1 h-12 rounded-lg border border-slate-200 bg-transparent text-slate-800 font-label-lg text-label-lg flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors"><span class="material-symbols-outlined text-[20px]">near_me</span>Y aller (Maps)</button>
+<button class="flex-1 h-12 rounded-lg bg-primary text-on-primary font-label-lg text-label-lg flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors">
+<span class="material-symbols-outlined text-[20px]">my_location</span>
+                Déclarer ma présence
+            </button>
+</div>
+</div>
+
+
+</body></html>

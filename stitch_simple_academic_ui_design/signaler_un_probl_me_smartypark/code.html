@@ -1,0 +1,205 @@
+<!DOCTYPE html><html class="light" lang="fr"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Signaler un problème - SmartyPark</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary": "#ffffff",
+                        "slate-100": "#f1f5f9",
+                        "warning": "#f59e0b",
+                        "outline": "#6c7a71",
+                        "tertiary": "#a43a3a",
+                        "tertiary-fixed-dim": "#ffb3af",
+                        "on-error": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "secondary-container": "#dae2fd",
+                        "surface-container": "#e8f0e9",
+                        "on-tertiary-container": "#711419",
+                        "surface": "#f4fbf4",
+                        "outline-variant": "#bbcabf",
+                        "inverse-on-surface": "#ebf3eb",
+                        "on-tertiary-fixed": "#410005",
+                        "slate-50": "#f8fafc",
+                        "inverse-surface": "#2b322d",
+                        "on-tertiary-fixed-variant": "#842225",
+                        "secondary-fixed": "#dae2fd",
+                        "on-error-container": "#93000a",
+                        "surface-tint": "#006c49",
+                        "on-secondary-fixed-variant": "#3f465c",
+                        "surface-container-highest": "#dde4dd",
+                        "success": "#10b981",
+                        "primary": "#006c49",
+                        "surface-container-lowest": "#ffffff",
+                        "slate-200": "#e2e8f0",
+                        "primary-fixed": "#6ffbbe",
+                        "primary-fixed-dim": "#4edea3",
+                        "secondary-fixed-dim": "#bec6e0",
+                        "surface-variant": "#dde4dd",
+                        "on-secondary-container": "#5c647a",
+                        "tertiary-fixed": "#ffdad7",
+                        "on-primary-container": "#00422b",
+                        "surface-dim": "#d4dcd5",
+                        "on-primary-fixed-variant": "#005236",
+                        "inverse-primary": "#4edea3",
+                        "on-surface": "#161d19",
+                        "on-surface-variant": "#3c4a42",
+                        "secondary": "#565e74",
+                        "on-primary-fixed": "#002113",
+                        "tertiary-container": "#fc7c78",
+                        "on-background": "#161d19",
+                        "error-container": "#ffdad6",
+                        "on-secondary": "#ffffff",
+                        "slate-800": "#1e293b",
+                        "surface-bright": "#f4fbf4",
+                        "danger": "#ef4444",
+                        "surface-container-high": "#e3eae3",
+                        "surface-container-low": "#eef6ee",
+                        "background": "#f4fbf4",
+                        "on-secondary-fixed": "#131b2e",
+                        "primary-container": "#10b981",
+                        "error": "#ba1a1a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "lg": "24px",
+                        "xl": "32px",
+                        "sm": "8px",
+                        "xs": "4px",
+                        "margin-mobile": "20px",
+                        "gutter": "16px",
+                        "md": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-lg": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "display": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "headline-lg": ["28px", { "lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "display": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen font-body-lg">
+<div class="max-w-md mx-auto w-full min-h-screen flex flex-col relative pb-safe">
+<!-- Header -->
+<header class="flex flex-col px-margin-mobile pt-lg pb-md bg-surface sticky top-0 z-10 border-b border-slate-100">
+<div class="flex items-center justify-between w-full mb-md">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<div class="flex items-center gap-2">
+<h1 class="text-headline-md font-headline-md text-on-surface text-center flex-1">Signaler un problème</h1>
+<span class="material-symbols-outlined text-warning" data-icon="warning" style="font-variation-settings: 'FILL' 1;">warning</span>
+</div>
+<div class="w-10"></div> <!-- Spacer -->
+</div>
+<div class="bg-surface-container rounded-lg px-md py-sm flex items-center gap-sm mx-auto text-center">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]" data-icon="location_on">location_on</span>
+<p class="text-label-lg font-label-lg text-on-surface-variant">Espace concerné : Parc des Tuileries</p>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-1 px-margin-mobile py-lg overflow-y-auto">
+<form class="bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(30,41,59,0.04)] border border-slate-100 p-md flex flex-col gap-lg">
+<!-- Issue Type -->
+<div class="flex flex-col gap-sm">
+<label class="text-label-lg font-label-lg text-on-surface flex items-center gap-1" for="issue-type">
+                        Type de signalement <span class="text-danger">*</span>
+</label>
+<div class="flex flex-wrap gap-2">
+  <button type="button" class="px-md py-2 rounded-full border border-primary bg-primary text-on-primary text-label-lg transition-colors">Propreté</button>
+  <button type="button" class="px-md py-2 rounded-full border border-slate-200 bg-surface-dim text-on-surface-variant text-label-lg hover:bg-surface-container transition-colors">Équipement</button>
+  <button type="button" class="px-md py-2 rounded-full border border-slate-200 bg-surface-dim text-on-surface-variant text-label-lg hover:bg-surface-container transition-colors">Sécurité</button>
+  <button type="button" class="px-md py-2 rounded-full border border-slate-200 bg-surface-dim text-on-surface-variant text-label-lg hover:bg-surface-container transition-colors">Autre</button>
+</div>
+</div>
+<!-- Description -->
+<div class="flex flex-col gap-sm">
+<label class="text-label-lg font-label-lg text-on-surface flex items-center gap-1" for="description">
+                        Description de l'anomalie <span class="text-danger">*</span>
+</label>
+<div class="relative">
+  <textarea class="w-full bg-surface-container-lowest border border-slate-200 text-on-surface text-body-md font-body-md rounded-lg px-md py-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all resize-none placeholder:text-on-surface-variant/50" id="description" placeholder="Décrivez le problème rencontré avec le plus de précisions possible (1000 caractères max)..." rows="5"></textarea>
+  <span class="absolute bottom-3 right-md text-label-sm text-on-surface-variant/60">0 / 1000</span>
+</div>
+<div class="flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant" data-icon="schedule">schedule</span>
+<p class="text-label-sm font-label-sm text-on-surface-variant" id="timestamp">Horodaté automatiquement au 23/08/2026 03:47</p>
+</div>
+</div><div class="flex flex-col gap-sm">
+  <label class="text-label-lg font-label-lg text-on-surface flex items-center gap-1">
+    Ajouter une photo de l'anomalie
+  </label>
+  <div class="border-2 border-dashed border-slate-200 rounded-xl p-lg flex flex-col items-center justify-center gap-md bg-surface-container-low hover:bg-surface-container transition-colors cursor-pointer">
+    <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+      <span class="material-symbols-outlined" data-icon="photo_camera">photo_camera</span>
+    </div>
+    <div class="flex flex-col items-center gap-1">
+      <p class="text-body-md text-on-surface-variant">Prendre une photo ou</p>
+      <button type="button" class="text-primary font-label-lg hover:underline">Parcourir</button>
+    </div>
+  </div>
+</div>
+</form>
+</main>
+<!-- Actions (Fixed Bottom) -->
+<div class="p-margin-mobile bg-surface border-t border-slate-100 flex flex-col gap-md sticky bottom-0 z-10 pb-safe">
+<button class="w-full bg-primary text-on-primary rounded-lg py-3 px-md flex items-center justify-center gap-2 hover:bg-on-primary-fixed-variant transition-colors shadow-sm" type="button">
+<span class="material-symbols-outlined" data-icon="send">send</span>
+<span class="text-label-lg font-label-lg">Envoyer le signalement</span>
+</button>
+<button class="w-full bg-transparent border border-slate-200 text-slate-800 rounded-lg py-3 px-md flex items-center justify-center hover:bg-surface-container transition-colors" type="button">
+<span class="text-label-lg font-label-lg">Annuler</span>
+</button>
+</div>
+</div>
+<script>
+        // Set current date/time for timestamp
+        document.addEventListener('DOMContentLoaded', () => {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            const timeStr = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('timestamp').textContent = `Horodaté automatiquement au ${dateStr} ${timeStr}`;
+        });
+    </script>
+
+
+</body></html>

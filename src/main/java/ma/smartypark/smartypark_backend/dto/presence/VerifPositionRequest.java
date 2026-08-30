@@ -14,10 +14,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PresenceRequest {
-
-    @NotNull(message = "L'identifiant de l'espace public est obligatoire")
-    private Long espacePublicId;
+public class VerifPositionRequest {
 
     @NotNull(message = "La latitude est obligatoire")
     @Min(value = -90, message = "La latitude doit être comprise entre -90 et 90")

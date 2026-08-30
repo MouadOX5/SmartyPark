@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Login - CrowdFlow</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error-container": "#93000a",
+                        "on-secondary-container": "#684000",
+                        "primary": "#006c49",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed": "#2a1700",
+                        "surface-container-high": "#e2e8f8",
+                        "on-surface-variant": "#3c4a42",
+                        "on-tertiary": "#ffffff",
+                        "surface-variant": "#dce2f3",
+                        "tertiary": "#bc0b3b",
+                        "error-container": "#ffdad6",
+                        "surface-container-highest": "#dce2f3",
+                        "on-tertiary-container": "#780021",
+                        "on-secondary-fixed-variant": "#653e00",
+                        "on-secondary": "#ffffff",
+                        "secondary-fixed-dim": "#ffb95f",
+                        "surface-dim": "#d3daea",
+                        "on-primary": "#ffffff",
+                        "background": "#f9f9ff",
+                        "surface-tint": "#006c49",
+                        "secondary-fixed": "#ffddb8",
+                        "on-error": "#ffffff",
+                        "tertiary-container": "#ff7886",
+                        "on-primary-container": "#00422b",
+                        "tertiary-fixed": "#ffdadb",
+                        "primary-fixed": "#6ffbbe",
+                        "on-tertiary-fixed-variant": "#92002a",
+                        "secondary": "#855300",
+                        "outline-variant": "#bbcabf",
+                        "on-surface": "#151c27",
+                        "surface": "#f9f9ff",
+                        "surface-bright": "#f9f9ff",
+                        "inverse-surface": "#2a313d",
+                        "inverse-primary": "#4edea3",
+                        "on-background": "#151c27",
+                        "on-primary-fixed": "#002113",
+                        "on-primary-fixed-variant": "#005236",
+                        "surface-container-low": "#f0f3ff",
+                        "primary-container": "#10b981",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-fixed": "#40000d",
+                        "outline": "#6c7a71",
+                        "tertiary-fixed-dim": "#ffb2b7",
+                        "secondary-container": "#fea619",
+                        "inverse-on-surface": "#ebf1ff",
+                        "surface-container": "#e7eefe",
+                        "primary-fixed-dim": "#4edea3"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "16px",
+                        "margin": "20px",
+                        "gutter": "16px",
+                        "lg": "24px",
+                        "base": "4px",
+                        "sm": "8px",
+                        "xs": "4px",
+                        "xl": "32px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "label-lg": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "display": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "headline-lg": ["28px", { "lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "display": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* Hide scrollbar for clean look */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .toggle-container {
+            transition: all 0.3s ease-in-out;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col items-center justify-center relative overflow-hidden">
+<!-- Decorative background elements (minimalist) -->
+<div class="absolute top-[-10%] left-[-20%] w-96 h-96 bg-primary-container/20 rounded-full blur-[100px] z-0 pointer-events-none"></div>
+<div class="absolute bottom-[-10%] right-[-20%] w-96 h-96 bg-surface-container-high/40 rounded-full blur-[100px] z-0 pointer-events-none"></div>
+<main class="w-full max-w-md px-margin z-10 flex flex-col h-full justify-center">
+<!-- Logo Header -->
+<header class="text-center mb-xl">
+<div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-container text-primary mb-md shadow-[0_4px_12px_0_rgba(0,0,0,0.04)]">
+<span class="material-symbols-outlined text-display" data-weight="fill" style="font-variation-settings: 'FILL' 1;">analytics</span>
+</div>
+<h1 class="font-display text-display text-primary tracking-tight">CrowdFlow</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-sm">Understand your space, instantly.</p>
+</header>
+<!-- Main Form Container -->
+<div class="bg-surface rounded-xl p-lg shadow-[0_4px_24px_0_rgba(0,0,0,0.06)] border border-surface-dim relative overflow-hidden">
+<!-- Login View -->
+<div class="toggle-container fade-in" id="login-view">
+<h2 class="font-headline-md text-headline-md mb-lg">Welcome back</h2>
+<form class="space-y-md">
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-xs" for="login-email">Email</label>
+<input class="w-full h-12 px-md border border-outline-variant rounded-lg bg-surface-bright focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-md text-body-md" id="login-email" placeholder="Enter your email" required="" type="email"/>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-xs" for="login-password">Password</label>
+<input class="w-full h-12 px-md border border-outline-variant rounded-lg bg-surface-bright focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-md text-body-md" id="login-password" placeholder="••••••••" required="" type="password"/>
+<div class="text-right mt-xs">
+<a class="font-label-sm text-label-sm text-primary hover:underline" href="#">Forgot password?</a>
+</div>
+</div>
+<button class="w-full h-12 mt-md bg-primary text-on-primary rounded-lg font-label-lg text-label-lg flex items-center justify-center hover:bg-primary/90 active:scale-[0.98] transition-all shadow-sm" onclick="handleLogin()" type="button">
+                        Se connecter
+                    </button>
+</form>
+<div class="mt-lg text-center border-t border-outline-variant/30 pt-md">
+<p class="font-body-md text-body-md text-on-surface-variant">
+                        Don't have an account? 
+                        <button class="font-label-lg text-label-lg text-primary hover:underline ml-xs" onclick="toggleView('register')" type="button">S'inscrire</button>
+</p>
+</div>
+</div>
+<!-- Registration View (Initially Hidden) -->
+<div class="toggle-container hidden opacity-0 translate-y-4 absolute top-0 left-0 w-full h-full p-lg bg-surface" id="register-view">
+<h2 class="font-headline-md text-headline-md mb-md">Create an account</h2>
+<form class="space-y-sm">
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-xs" for="reg-name">Full Name</label>
+<input class="w-full h-12 px-md border border-outline-variant rounded-lg bg-surface-bright focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-md text-body-md" id="reg-name" placeholder="Jane Doe" required="" type="text"/>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-xs" for="reg-email">Email</label>
+<input class="w-full h-12 px-md border border-outline-variant rounded-lg bg-surface-bright focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-md text-body-md" id="reg-email" placeholder="jane@example.com" required="" type="email"/>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-xs" for="reg-password">Password</label>
+<input class="w-full h-12 px-md border border-outline-variant rounded-lg bg-surface-bright focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-md text-body-md" id="reg-password" placeholder="Create a password" required="" type="password"/>
+</div>
+<button class="w-full h-12 mt-md bg-primary text-on-primary rounded-lg font-label-lg text-label-lg flex items-center justify-center hover:bg-primary/90 active:scale-[0.98] transition-all shadow-sm" onclick="handleRegister()" type="button">
+                        Create Account
+                    </button>
+</form>
+<div class="mt-md text-center border-t border-outline-variant/30 pt-sm">
+<p class="font-body-md text-body-md text-on-surface-variant">
+                        Already have an account? 
+                        <button class="font-label-lg text-label-lg text-primary hover:underline ml-xs" onclick="toggleView('login')" type="button">Log in</button>
+</p>
+</div>
+</div>
+</div>
+<!-- Loading State Overlay (Hidden) -->
+<div class="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center hidden" id="loading-overlay">
+<div class="w-12 h-12 border-4 border-surface-container-highest border-t-primary rounded-full animate-spin"></div>
+<p class="mt-md font-label-lg text-label-lg text-primary">Authenticating...</p>
+</div>
+</main>
+<script>
+        function toggleView(viewName) {
+            const loginView = document.getElementById('login-view');
+            const registerView = document.getElementById('register-view');
+            
+            if (viewName === 'register') {
+                // Hide login
+                loginView.classList.remove('fade-in');
+                loginView.style.opacity = '0';
+                setTimeout(() => {
+                    loginView.classList.add('hidden');
+                    
+                    // Show register
+                    registerView.classList.remove('hidden');
+                    // Force reflow
+                    void registerView.offsetWidth;
+                    registerView.classList.add('fade-in');
+                    registerView.style.position = 'relative';
+                    registerView.style.opacity = '1';
+                    registerView.style.transform = 'translateY(0)';
+                    
+                    loginView.style.position = 'absolute';
+                }, 150);
+            } else {
+                // Hide register
+                registerView.classList.remove('fade-in');
+                registerView.style.opacity = '0';
+                setTimeout(() => {
+                    registerView.classList.add('hidden');
+                    registerView.style.position = 'absolute';
+                    
+                    // Show login
+                    loginView.classList.remove('hidden');
+                    // Force reflow
+                    void loginView.offsetWidth;
+                    loginView.classList.add('fade-in');
+                    loginView.style.position = 'relative';
+                    loginView.style.opacity = '1';
+                }, 150);
+            }
+        }
+
+        function showLoading() {
+            document.getElementById('loading-overlay').classList.remove('hidden');
+            // Simulate network request
+            setTimeout(() => {
+                document.getElementById('loading-overlay').classList.add('hidden');
+                // Normally you would redirect here
+            }, 1500);
+        }
+
+        function handleLogin() {
+            // Basic validation check could go here
+            showLoading();
+        }
+
+        function handleRegister() {
+            // Basic validation check could go here
+            showLoading();
+        }
+    </script>
+</body></html>

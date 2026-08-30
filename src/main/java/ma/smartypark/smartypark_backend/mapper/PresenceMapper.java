@@ -27,6 +27,8 @@ public class PresenceMapper {
                 .statut(presence.getStatut())
                 .espacePublicId(espacePublicId)
                 .espacePublicNom(espacePublicNom)
+                .distanceDeclarationMetres(presence.getDistanceDeclarationMetres())
+                .motifTerminaison(presence.getMotifTerminaison())
                 .build();
     }
 }

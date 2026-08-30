@@ -1,3 +1,6 @@
+// ============================================================================
+// File: AffluenceServiceImpl.java
+// ============================================================================
 package ma.smartypark.smartypark_backend.service.impl;
 
 import lombok.RequiredArgsConstructor;
@@ -11,29 +14,69 @@ import ma.smartypark.smartypark_backend.exception.ResourceNotFoundException;
 import ma.smartypark.smartypark_backend.repository.DeclarationAffluenceRepository;
 import ma.smartypark.smartypark_backend.repository.EspacePublicRepository;
 import ma.smartypark.smartypark_backend.service.AffluenceService;
+import ma.smartypark.smartypark_backend.service.GeoDistanceService;
 import ma.smartypark.smartypark_backend.service.JournalService;
 import ma.smartypark.smartypark_backend.service.UtilisateurService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class AffluenceServiceImpl implements AffluenceService {
 
-    private static final double DISTANCE_MAX_METRES = 500.0;
+    // =========================================================================
+    // CONSTANTES DE VALORISATION DES STATUTS
+    // =========================================================================
+    private static final double VALEUR_DISPONIBLE = 1.0;
+    private static final double VALEUR_PRESQUE_SATURE = 2.0;
+    private static final double VALEUR_SATURE = 3.0;
 
+    // =========================================================================
+    // CONFIGURATION CENTRALISÉE (application.properties)
+    // =========================================================================
+    @Value("${affluence.recent-weight:0.70}")
+    private double poidsRecent;
+
+    @Value("${affluence.historical-weight:0.30}")
+    private double poidsHistorique;
+
+    @Value("${affluence.recent-window-minutes:60}")
+    private int fenetreRecenteMinutes;
+
+    @Value("${affluence.historical-window-minutes:30}")
+    private int fenetreHistoriqueMinutes;
+
+    @Value("${affluence.historical-depth-days:90}")
+    private int profondeurHistoriqueJours;
+
+    @Value("${affluence.seuil-disponible:1.6}")
+    private double seuilDisponible;
+
+    @Value("${affluence.seuil-presque-sature:2.4}")
+    private double seuilPresqueSature;
+
+    @Value("${affluence.declaration-distance-max-meters:500}")
+    private double distanceMaxMetres;
+
+    // =========================================================================
+    // DÉPENDANCES
+    // =========================================================================
     private final DeclarationAffluenceRepository declarationAffluenceRepository;
     private final EspacePublicRepository espacePublicRepository;
     private final UtilisateurService utilisateurService;
     private final JournalService journalService;
+    private final GeoDistanceService geoDistanceService;
 
+    // =========================================================================
+    // DÉCLARATION D'AFFLUENCE (existant, inchangé)
+    // =========================================================================
     @Override
     @Transactional
     public void declarer(Long espaceId, DeclarationAffluenceRequest request) {
@@ -46,12 +89,12 @@ public class AffluenceServiceImpl implements AffluenceService {
             throw new BusinessException("Cet espace public n'est pas validé");
         }
 
-        double distance = calculerDistance(
+        double distance = geoDistanceService.calculateDistanceInMeters(
                 request.getLatitude(), request.getLongitude(),
                 espace.getLatitude(), espace.getLongitude()
         );
 
-        if (distance > DISTANCE_MAX_METRES) {
+        if (distance > distanceMaxMetres) {
             throw new BusinessException("Vous êtes trop éloigné de cet espace public pour déclarer son affluence");
         }
 
@@ -63,7 +106,8 @@ public class AffluenceServiceImpl implements AffluenceService {
 
         declarationAffluenceRepository.save(declaration);
 
-        StatutAffluence nouveauStatut = calculerStatutMajoritaire(espace);
+        // Recalcul complet avec la nouvelle déclaration
+        StatutAffluence nouveauStatut = calculerStatutAffluence(espace);
         espace.setStatutAffluenceActuel(nouveauStatut);
         espacePublicRepository.save(espace);
 
@@ -81,70 +125,197 @@ public class AffluenceServiceImpl implements AffluenceService {
         );
     }
 
+    // =========================================================================
+    // OBTENTION DU STATUT ACTUEL — CORRIGÉ : lecture seule, pas de persistance
+    // =========================================================================
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public StatutAffluence getStatutActuel(Long espaceId) {
-
         EspacePublic espace = espacePublicRepository.findById(espaceId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Espace public introuvable"));
 
-        StatutAffluence statut = calculerStatutMajoritaire(espace);
-
-        if (espace.getStatutAffluenceActuel() != statut) {
-            espace.setStatutAffluenceActuel(statut);
-            espacePublicRepository.save(espace);
-        }
-
-        return statut;
+        return calculerStatutAffluence(espace);
     }
 
+    // =========================================================================
+    // ALGORITHME PRINCIPAL : CALCUL DU STATUT D'AFFLUENCE (inchangé)
+    // =========================================================================
+    private StatutAffluence calculerStatutAffluence(EspacePublic espace) {
+        LocalDateTime maintenant = LocalDateTime.now();
 
+        // --- 1. Score récent (déclarations des X dernières minutes) ---
+        double scoreRecent = calculerScoreRecent(espace, maintenant);
+        boolean aDesDonneesRecentes = scoreRecent > 0;
 
-    private StatutAffluence calculerStatutMajoritaire(EspacePublic espace) {
-        LocalDateTime limite = LocalDateTime.now().minusMinutes(60);
+        // --- 2. Score historique (profil temporel jour + heure) ---
+        double scoreHistorique = calculerScoreHistorique(espace, maintenant);
+        boolean aDesDonneesHistoriques = scoreHistorique > 0;
+
+        // --- 3. Combinaison pondérée ---
+        double scoreFinal;
+
+        if (aDesDonneesRecentes && aDesDonneesHistoriques) {
+            scoreFinal = (scoreRecent * poidsRecent) + (scoreHistorique * poidsHistorique);
+        } else if (aDesDonneesRecentes) {
+            scoreFinal = scoreRecent;
+        } else if (aDesDonneesHistoriques) {
+            scoreFinal = scoreHistorique;
+        } else {
+            return StatutAffluence.INCONNU;
+        }
+
+        return determinerStatutDepuisScore(scoreFinal);
+    }
+
+    // =========================================================================
+    // SCORE RÉCENT : pondération temporelle décroissante (inchangé)
+    // =========================================================================
+    private double calculerScoreRecent(EspacePublic espace, LocalDateTime reference) {
+        LocalDateTime limite = reference.minusMinutes(fenetreRecenteMinutes);
+
         List<DeclarationAffluence> declarations = declarationAffluenceRepository
                 .findByEspacePublicAndDateDeclarationAfter(espace, limite);
 
         if (declarations.isEmpty()) {
-            return StatutAffluence.INCONNU;
+            return 0.0;
         }
 
-        Map<StatutAffluence, Long> comptage = declarations.stream()
-                .collect(Collectors.groupingBy(
-                        DeclarationAffluence::getStatutAffluence,
-                        Collectors.counting()
-                ));
+        double sommePonderee = 0.0;
+        double sommePoids = 0.0;
 
-        long maxCount = comptage.values().stream()
-                .max(Long::compareTo)
-                .orElse(0L);
+        for (DeclarationAffluence d : declarations) {
+            long minutesEcoulees = ChronoUnit.MINUTES.between(d.getDateDeclaration(), reference);
+            if (minutesEcoulees < 0) minutesEcoulees = 0;
+            if (minutesEcoulees > fenetreRecenteMinutes) minutesEcoulees = fenetreRecenteMinutes;
 
-        List<StatutAffluence> majoritaires = comptage.entrySet().stream()
-                .filter(e -> e.getValue() == maxCount)
-                .map(Map.Entry::getKey)
-                .toList();
+            double poids = 1.0 - (0.9 * minutesEcoulees / fenetreRecenteMinutes);
+            double valeur = valeurNumerique(d.getStatutAffluence());
 
-        if (majoritaires.size() == 1) {
-            return majoritaires.get(0);
+            sommePonderee += valeur * poids;
+            sommePoids += poids;
         }
 
-        // Égalité : départage par la déclaration la plus récente
-        return declarations.stream()
-                .filter(d -> majoritaires.contains(d.getStatutAffluence()))
-                .max(Comparator.comparing(DeclarationAffluence::getDateDeclaration))
-                .map(DeclarationAffluence::getStatutAffluence)
-                .orElse(StatutAffluence.INCONNU);
+        return sommePonderee / sommePoids;
     }
 
-    private double calculerDistance(float lat1, float lon1, float lat2, float lon2) {
-        final int R = 6371000; // Rayon de la Terre en mètres
-        double latDistance = Math.toRadians(lat2 - lat1);
-        double lonDistance = Math.toRadians(lon2 - lon1);
-        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
-                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
-                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return R * c;
+    // =========================================================================
+    // SCORE HISTORIQUE : CORRIGÉ — gestion correcte de la fenêtre autour de minuit
+    // =========================================================================
+    private double calculerScoreHistorique(EspacePublic espace, LocalDateTime reference) {
+        // Période historique : des 3 derniers mois jusqu'à hier
+        LocalDateTime debutPeriode = reference.minusDays(profondeurHistoriqueJours).with(LocalTime.MIN);
+        LocalDateTime finPeriode = reference.minusDays(1).with(LocalTime.MAX);
+
+        // Jour de la semaine actuel (1=Lundi, ..., 7=Dimanche)
+        int jourActuel = reference.getDayOfWeek().getValue();
+
+        // Récupération de toutes les déclarations historiques de l'espace
+        List<DeclarationAffluence> declarationsHistoriques = declarationAffluenceRepository
+                .findByEspacePublicAndDateDeclarationBetween(espace, debutPeriode, finPeriode);
+
+        if (declarationsHistoriques.isEmpty()) {
+            return 0.0;
+        }
+
+        double sommePonderee = 0.0;
+        double sommePoids = 0.0;
+
+        for (DeclarationAffluence d : declarationsHistoriques) {
+            LocalDateTime dateDecl = d.getDateDeclaration();
+
+            // --- Filtrage par jour de la semaine ---
+            if (dateDecl.getDayOfWeek().getValue() != jourActuel) {
+                continue;
+            }
+
+            // --- Filtrage par fenêtre horaire (CORRECTION MINUIT) ---
+            // On calcule la distance en minutes entre l'heure de la déclaration
+            // et l'heure actuelle, en gérant correctement le passage par minuit.
+            // Exemple : 23:55 et 00:10 → distance = 15 minutes (pas 23h45)
+            long deltaMinutes = deltaMinutesAutourMinuit(
+                    dateDecl.toLocalTime(),
+                    reference.toLocalTime()
+            );
+
+            // La moitié de la fenêtre historique constitue la tolérance max
+            long demiFenetre = fenetreHistoriqueMinutes / 2;
+
+            if (deltaMinutes > demiFenetre) {
+                continue; // Hors de la fenêtre horaire autorisée
+            }
+
+            // --- Pondération selon l'ancienneté dans l'historique ---
+            long joursEcoules = ChronoUnit.DAYS.between(dateDecl.toLocalDate(), reference.toLocalDate());
+            double poidsHistorique;
+            if (joursEcoules <= 30) {
+                poidsHistorique = 1.0;
+            } else {
+                poidsHistorique = Math.max(0.3, 1.0 - (0.7 * (joursEcoules - 30) / (profondeurHistoriqueJours - 30)));
+            }
+
+            double valeur = valeurNumerique(d.getStatutAffluence());
+
+            sommePonderee += valeur * poidsHistorique;
+            sommePoids += poidsHistorique;
+        }
+
+        if (sommePoids == 0.0) {
+            return 0.0;
+        }
+
+        return sommePonderee / sommePoids;
+    }
+
+    // =========================================================================
+    // UTILITAIRE : distance circulaire entre deux LocalTime (gestion minuit)
+    // =========================================================================
+    /**
+     * Calcule la distance minimale en minutes entre deux heures,
+     * en considérant l'horloge comme circulaire (24h = 0h).
+     *
+     * Exemples :
+     * - 10:00 et 10:15 → 15 minutes
+     * - 23:55 et 00:10 → 15 minutes (traverse minuit)
+     * - 00:05 et 23:50 → 15 minutes (traverse minuit en sens inverse)
+     * - 14:00 et 14:45 → 45 minutes
+     *
+     * @param heure1 Première heure
+     * @param heure2 Deuxième heure
+     * @return Distance en minutes (toujours positive, entre 0 et 720)
+     */
+    private long deltaMinutesAutourMinuit(LocalTime heure1, LocalTime heure2) {
+        long minutes1 = heure1.toSecondOfDay() / 60L;
+        long minutes2 = heure2.toSecondOfDay() / 60L;
+
+        long diffDirecte = Math.abs(minutes1 - minutes2);
+        long diffCirculaire = 24L * 60L - diffDirecte;
+
+        return Math.min(diffDirecte, diffCirculaire);
+    }
+
+    // =========================================================================
+    // MAPPING SCORE → STATUT (inchangé)
+    // =========================================================================
+    private StatutAffluence determinerStatutDepuisScore(double score) {
+        if (score <= seuilDisponible) {
+            return StatutAffluence.DISPONIBLE;
+        } else if (score <= seuilPresqueSature) {
+            return StatutAffluence.PRESQUE_SATURE;
+        } else {
+            return StatutAffluence.SATURE;
+        }
+    }
+
+    // =========================================================================
+    // UTILITAIRE : valeur numérique d'un statut (inchangé)
+    // =========================================================================
+    private double valeurNumerique(StatutAffluence statut) {
+        return switch (statut) {
+            case DISPONIBLE -> VALEUR_DISPONIBLE;
+            case PRESQUE_SATURE -> VALEUR_PRESQUE_SATURE;
+            case SATURE -> VALEUR_SATURE;
+            case INCONNU -> 0.0;
+        };
     }
 }

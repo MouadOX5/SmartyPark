@@ -1,10 +1,6 @@
 package ma.smartypark.smartypark_backend.entity;
 
-/**
- * Représente l'état de disponibilité/saturation d'un EspacePublic.
- * Calculé automatiquement à partir du nombre de présences actives
- * et de la capacité maximale du Park.
- */
+
 public enum StatutAffluence  {
     INCONNU,
 
