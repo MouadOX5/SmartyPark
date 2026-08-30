@@ -63,6 +63,7 @@ export interface EspacePublicRequest {
   latitude: number;
   longitude: number;
   capaciteMax?: number;
+  imageUrl?: string | null;
 }
 
 export interface EspacePublicResponse {
@@ -76,6 +77,7 @@ export interface EspacePublicResponse {
   estValide: boolean;
   statutAffluenceActuel: StatutAffluence;
   dateCreation: string;
+  imageUrl?: string | null;
 }
 
 // ==========================================

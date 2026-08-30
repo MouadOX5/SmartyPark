@@ -7,9 +7,11 @@ import ma.smartypark.smartypark_backend.dto.espace.EspacePublicResponse;
 import ma.smartypark.smartypark_backend.entity.CategorieEspace;
 import ma.smartypark.smartypark_backend.service.EspacePublicService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -20,10 +22,12 @@ public class EspacePublicController {
 
     private final EspacePublicService espacePublicService;
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyRole('MODERATEUR', 'ADMINISTRATEUR')")
-    public ResponseEntity<EspacePublicResponse> create(@Valid @RequestBody EspacePublicRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(espacePublicService.create(request));
+    public ResponseEntity<EspacePublicResponse> create(
+            @RequestPart("espace") @Valid EspacePublicRequest request,
+            @RequestPart(value = "image", required = false) MultipartFile image) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(espacePublicService.create(request, image));
     }
 
     @GetMapping("/{id}")
@@ -56,12 +60,13 @@ public class EspacePublicController {
         return ResponseEntity.ok(espacePublicService.searchByNom(nom));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyRole('MODERATEUR', 'ADMINISTRATEUR')")
     public ResponseEntity<EspacePublicResponse> update(
             @PathVariable Long id,
-            @Valid @RequestBody EspacePublicRequest request) {
-        return ResponseEntity.ok(espacePublicService.update(id, request));
+            @RequestPart("espace") @Valid EspacePublicRequest request,
+            @RequestPart(value = "image", required = false) MultipartFile image) {
+        return ResponseEntity.ok(espacePublicService.update(id, request, image));
     }
 
     @PatchMapping("/{id}/valider")

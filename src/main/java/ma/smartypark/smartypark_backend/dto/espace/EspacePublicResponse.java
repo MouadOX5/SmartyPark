@@ -27,4 +27,7 @@ public class EspacePublicResponse {
     private Boolean estValide;
     private StatutAffluence statutAffluenceActuel;
     private LocalDateTime dateCreation;
+
+    /** URL complète de l'image de couverture, ou null si aucune image */
+    private String imageUrl;
 }

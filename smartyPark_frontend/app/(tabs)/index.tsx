@@ -237,7 +237,6 @@ export default function ExplorerScreen() {
             />
           )}
           contentContainerStyle={styles.listContent}
-          columnWrapperStyle={styles.listColumnWrapper}
           numColumns={1}
           showsVerticalScrollIndicator={false}
           refreshControl={
@@ -395,10 +394,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20, // margin-mobile
     paddingTop: 8,
     paddingBottom: 24,
-  },
-  listColumnWrapper: {
-    // Used if numColumns > 1, but we use 1 for mobile currently. 
-    // Kept here for future tablet support.
   },
   loader: {
     flex: 1,

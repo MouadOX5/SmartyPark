@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Getter
+@Getter 
 @Setter
 @Table(name = "espaces_publics")
 @Data
@@ -61,6 +61,10 @@ public class EspacePublic {
     @Column(nullable = false)
     @Builder.Default
     private StatutAffluence statutAffluenceActuel = StatutAffluence.INCONNU;
+
+    /** URL ou chemin relatif de l'image de couverture de l'espace public */
+    @Column(length = 1000)
+    private String imageUrl;
 
     @OneToMany(mappedBy = "espacePublic", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore

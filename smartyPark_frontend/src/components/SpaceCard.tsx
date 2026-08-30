@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   TouchableOpacity,
   View,
   Text,
   StyleSheet,
+  Image,
 } from 'react-native';
 import { MapPin } from 'lucide-react-native';
 import { EspacePublicResponse } from '../types';
@@ -31,24 +32,44 @@ interface SpaceCardProps {
 }
 
 export const SpaceCard: React.FC<SpaceCardProps> = ({ espace, onPress, distance }) => {
+  const [imageError, setImageError] = useState(false);
   const emoji = CATEGORY_EMOJIS[espace.categorie] || '🏟️';
   const catBg = CATEGORY_BG[espace.categorie] || '#E8F5E9';
 
   return (
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.9}>
-      {/* Decorative Header (Replacing Image) */}
-      <View style={[styles.imagePlaceholder, { backgroundColor: catBg }]}>
-        <Text style={styles.largeEmoji}>{emoji}</Text>
-        
-        {distance !== undefined && (
-          <View style={styles.distanceBadge}>
-            <MapPin size={14} color="#006c49" />
-            <Text style={styles.distanceText}>
-              {distance < 1000 ? `${Math.round(distance)} m` : `${(distance / 1000).toFixed(1)} km`}
-            </Text>
-          </View>
-        )}
-      </View>
+      {/* Header: Real Image or Decorative Placeholder */}
+      {espace.imageUrl && !imageError ? (
+        <View style={styles.imageContainer}>
+          <Image
+            source={{ uri: espace.imageUrl }}
+            style={styles.image}
+            resizeMode="cover"
+            onError={() => setImageError(true)}
+          />
+          {distance !== undefined && (
+            <View style={styles.distanceBadge}>
+              <MapPin size={14} color="#006c49" />
+              <Text style={styles.distanceText}>
+                {distance < 1000 ? `${Math.round(distance)} m` : `${(distance / 1000).toFixed(1)} km`}
+              </Text>
+            </View>
+          )}
+        </View>
+      ) : (
+        <View style={[styles.imagePlaceholder, { backgroundColor: catBg }]}>
+          <Text style={styles.largeEmoji}>{emoji}</Text>
+          
+          {distance !== undefined && (
+            <View style={styles.distanceBadge}>
+              <MapPin size={14} color="#006c49" />
+              <Text style={styles.distanceText}>
+                {distance < 1000 ? `${Math.round(distance)} m` : `${(distance / 1000).toFixed(1)} km`}
+              </Text>
+            </View>
+          )}
+        </View>
+      )}
 
       {/* Body Section */}
       <View style={styles.body}>
@@ -82,8 +103,18 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 3,
   },
-  imagePlaceholder: {
+  imageContainer: {
     height: 140, // 48 tailwind units = 192px ideally, but 140px is good for RN
+    width: '100%',
+    position: 'relative',
+    backgroundColor: '#f1f5f9',
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+  },
+  imagePlaceholder: {
+    height: 140,
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',

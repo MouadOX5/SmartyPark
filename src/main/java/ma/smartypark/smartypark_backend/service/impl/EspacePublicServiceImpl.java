@@ -9,9 +9,11 @@ import ma.smartypark.smartypark_backend.mapper.EspacePublicMapper;
 import ma.smartypark.smartypark_backend.repository.EspacePublicRepository;
 import ma.smartypark.smartypark_backend.service.EspacePublicService;
 import ma.smartypark.smartypark_backend.exception.ResourceNotFoundException;
+import ma.smartypark.smartypark_backend.service.FileStorageService;
 import ma.smartypark.smartypark_backend.service.JournalService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -23,11 +25,19 @@ public class EspacePublicServiceImpl implements EspacePublicService {
     private final EspacePublicRepository espacePublicRepository;
     private final EspacePublicMapper espacePublicMapper;
     private final JournalService journalService;
+    private final FileStorageService fileStorageService;
 
     @Override
     @Transactional
-    public EspacePublicResponse create(EspacePublicRequest request) {
+    public EspacePublicResponse create(EspacePublicRequest request, MultipartFile image) {
         EspacePublic espace = espacePublicMapper.toEntity(request);
+
+        // Stockage de l'image si fournie
+        if (image != null && !image.isEmpty()) {
+            String imagePath = fileStorageService.storeEspaceImage(image);
+            espace.setImageUrl(imagePath);
+        }
+
         EspacePublic espaceEnregistre = espacePublicRepository.save(espace);
 
         journalService.log(
@@ -76,7 +86,7 @@ public class EspacePublicServiceImpl implements EspacePublicService {
 
     @Override
     @Transactional
-    public EspacePublicResponse update(Long id, EspacePublicRequest request) {
+    public EspacePublicResponse update(Long id, EspacePublicRequest request, MultipartFile image) {
         EspacePublic espace = espacePublicRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Espace public introuvable"));
 
@@ -87,6 +97,16 @@ public class EspacePublicServiceImpl implements EspacePublicService {
         espace.setLatitude(request.getLatitude());
         espace.setLongitude(request.getLongitude());
 
+        // Gestion du remplacement d'image
+        if (image != null && !image.isEmpty()) {
+            // Suppression de l'ancienne image si elle existe
+            if (espace.getImageUrl() != null && !espace.getImageUrl().isBlank()) {
+                fileStorageService.deleteEspaceImage(espace.getImageUrl());
+            }
+            String newImagePath = fileStorageService.storeEspaceImage(image);
+            espace.setImageUrl(newImagePath);
+        }
+
         EspacePublic espaceModifie = espacePublicRepository.save(espace);
 
         journalService.log(
@@ -94,7 +114,6 @@ public class EspacePublicServiceImpl implements EspacePublicService {
                 "Modification de l'espace public '" + espaceModifie.getNom()
                         + "' (ID : " + espaceModifie.getId() + ")"
         );
-
 
         return espacePublicMapper.toResponse(espaceModifie);
     }
@@ -112,11 +131,15 @@ public class EspacePublicServiceImpl implements EspacePublicService {
     @Override
     @Transactional
     public void delete(Long id) {
-
         EspacePublic espace = espacePublicRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Espace public introuvable"));
 
         String nomEspace = espace.getNom();
+
+        // Suppression de l'image associée si elle existe
+        if (espace.getImageUrl() != null && !espace.getImageUrl().isBlank()) {
+            fileStorageService.deleteEspaceImage(espace.getImageUrl());
+        }
 
         espacePublicRepository.delete(espace);
 
