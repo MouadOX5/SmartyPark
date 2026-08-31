@@ -1,129 +1,44 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TextInput,
   TouchableOpacity,
-  FlatList,
   ActivityIndicator,
   StatusBar,
-  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Search, X, Map as MapIcon, List as ListIcon, User, Leaf } from 'lucide-react-native';
-import MapView, { Marker, Callout, Region } from '../../src/components/PlatformMap';
-import { espacePublicApi } from '../../src/api/espacePublicApi';
-import { EspacePublicResponse, CategorieEspace } from '../../src/types';
+import { Search, X, Map as MapIcon, List as ListIcon, Leaf } from 'lucide-react-native';
 import { COLORS } from '../../src/constants/colors';
-import { SpaceCard } from '../../src/components/SpaceCard';
 import { CategoryFilter } from '../../src/components/CategoryFilter';
-import { EmptyState } from '../../src/components/EmptyState';
-import { getCurrentLocation, calculateDistance } from '../../src/utils/location';
 import { useAuth } from '../../src/context/AuthContext';
 import { usePresence } from '../../src/context/PresenceContext';
 import { formatTimerSeconds } from '../../src/utils/formatters';
+import { useLocation } from '../../src/hooks/useLocation';
+import { useEspaces } from '../../src/hooks/useEspaces';
+import { EspacesListView } from '../../src/components/explorer/EspacesListView';
+import { EspacesMapView } from '../../src/components/explorer/EspacesMapView';
 
 export default function ExplorerScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const { isActive, durationSeconds } = usePresence();
 
-  const [espaces, setEspaces] = useState<EspacePublicResponse[]>([]);
-  const [filtered, setFiltered] = useState<EspacePublicResponse[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [searchText, setSearchText] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('tous');
-  const [distances, setDistances] = useState<Record<number, number>>({});
   const [viewMode, setViewMode] = useState<'liste' | 'carte'>('liste');
-  const [region, setRegion] = useState<Region | undefined>(undefined);
 
-  const loadEspaces = async () => {
-    try {
-      const data = await espacePublicApi.getAllValidated();
-      setEspaces(data);
-      setFiltered(data);
-      computeDistances(data);
-    } catch (e) {
-      console.error('Erreur chargement espaces:', e);
-    } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
-    }
-  };
-
-  const computeDistances = useCallback(async (data: EspacePublicResponse[]) => {
-    const loc = await getCurrentLocation();
-    if (loc) {
-      const map: Record<number, number> = {};
-      data.forEach((e) => {
-        map[e.id] = calculateDistance(loc.latitude, loc.longitude, e.latitude, e.longitude);
-      });
-      setDistances(map);
-      if (!region) {
-        setRegion({
-          latitude: loc.latitude,
-          longitude: loc.longitude,
-          latitudeDelta: 0.05,
-          longitudeDelta: 0.05,
-        });
-      }
-    } else if (!region && data.length > 0) {
-       setRegion({
-          latitude: data[0].latitude,
-          longitude: data[0].longitude,
-          latitudeDelta: 0.05,
-          longitudeDelta: 0.05,
-       })
-    }
-  }, [region]);
-
-  useEffect(() => {
-    loadEspaces();
-  }, []);
-
-  const handleSearch = (text: string) => {
-    setSearchText(text);
-    applyFilters(text, selectedCategory);
-  };
-
-  const handleCategorySelect = (key: string, category?: CategorieEspace) => {
-    setSelectedCategory(key);
-    applyFilters(searchText, key);
-  };
-
-  const applyFilters = (text: string, cat: string) => {
-    let result = [...espaces];
-    if (cat !== 'tous') {
-      result = result.filter((e) => e.categorie === cat);
-    }
-    if (text.trim()) {
-      result = result.filter(
-        (e) =>
-          e.nom.toLowerCase().includes(text.trim().toLowerCase()) ||
-          e.adresse.toLowerCase().includes(text.trim().toLowerCase())
-      );
-    }
-    setFiltered(result);
-  };
-
-  const clearSearch = () => {
-    setSearchText('');
-    applyFilters('', selectedCategory);
-  };
-
-  const onRefresh = () => {
-    setIsRefreshing(true);
-    loadEspaces();
-  };
-
-  const sortedFiltered = filtered.sort((a, b) => {
-    const da = distances[a.id] ?? Infinity;
-    const db = distances[b.id] ?? Infinity;
-    return da - db;
-  });
+  const { coords: userLocation } = useLocation();
+  const {
+    espaces,
+    loading,
+    search,
+    setSearch,
+    selectedCategory,
+    setSelectedCategory,
+    distances,
+    refresh,
+  } = useEspaces(userLocation);
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -153,7 +68,7 @@ export default function ExplorerScreen() {
         )}
       </View>
 
-      {/* Controls Section (Sticky behavior in RN via scroll view headers or just fixed) */}
+      {/* Controls Section */}
       <View style={styles.controlsSection}>
         {/* Search & Toggle Row */}
         <View style={styles.searchToggleRow}>
@@ -163,12 +78,12 @@ export default function ExplorerScreen() {
               style={styles.searchInput}
               placeholder="Rechercher un espace..."
               placeholderTextColor="#6c7a71"
-              value={searchText}
-              onChangeText={handleSearch}
+              value={search}
+              onChangeText={setSearch}
               returnKeyType="search"
             />
-            {searchText.length > 0 && (
-              <TouchableOpacity onPress={clearSearch} activeOpacity={0.7} style={styles.clearBtn}>
+            {search.length > 0 && (
+              <TouchableOpacity onPress={() => setSearch('')} activeOpacity={0.7} style={styles.clearBtn}>
                 <X size={18} color="#6c7a71" />
               </TouchableOpacity>
             )}
@@ -196,67 +111,22 @@ export default function ExplorerScreen() {
         </View>
 
         {/* Filtres Catégories */}
-        <CategoryFilter selected={selectedCategory} onSelect={handleCategorySelect} />
+        <CategoryFilter selected={selectedCategory} onSelect={(key) => setSelectedCategory(key)} />
       </View>
 
       {/* Contenu : Carte ou Liste */}
-      {isLoading ? (
+      {loading && espaces.length === 0 ? (
         <ActivityIndicator size="large" color={COLORS.primary} style={styles.loader} />
       ) : viewMode === 'carte' ? (
-        <View style={styles.mapContainer}>
-          <MapView
-            style={styles.map}
-            initialRegion={region}
-            showsUserLocation={true}
-          >
-            {sortedFiltered.map((espace) => (
-              <Marker
-                key={espace.id}
-                coordinate={{ latitude: espace.latitude, longitude: espace.longitude }}
-                onCalloutPress={() => router.push(`/espaces/${espace.id}`)}
-              >
-                <Callout tooltip>
-                  <View style={styles.calloutContainer}>
-                    <Text style={styles.calloutTitle}>{espace.nom}</Text>
-                    <Text style={styles.calloutSub}>Cliquez pour voir les détails</Text>
-                  </View>
-                </Callout>
-              </Marker>
-            ))}
-          </MapView>
-        </View>
+        <EspacesMapView espaces={espaces} userLocation={userLocation} />
       ) : (
-        <FlatList
-          data={sortedFiltered}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <SpaceCard
-              espace={item}
-              onPress={() => router.push(`/espaces/${item.id}`)}
-              distance={distances[item.id]}
-            />
-          )}
-          contentContainerStyle={styles.listContent}
-          numColumns={1}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-              refreshing={isRefreshing}
-              onRefresh={onRefresh}
-              tintColor={COLORS.primary}
-              colors={[COLORS.primary]}
-            />
-          }
-          ListEmptyComponent={
-            <EmptyState
-              title="Aucun espace trouvé"
-              subtitle={
-                searchText
-                  ? `Aucun résultat pour "${searchText}"`
-                  : 'Aucun espace disponible dans cette catégorie.'
-              }
-            />
-          }
+        <EspacesListView
+          espaces={espaces}
+          distances={distances}
+          loading={loading}
+          refreshing={loading}
+          onRefresh={refresh}
+          searchText={search}
         />
       )}
     </SafeAreaView>
@@ -390,39 +260,9 @@ const styles = StyleSheet.create({
   viewToggleTextActive: {
     color: '#161d19', // on-surface
   },
-  listContent: {
-    paddingHorizontal: 20, // margin-mobile
-    paddingTop: 8,
-    paddingBottom: 24,
-  },
   loader: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  mapContainer: {
-    flex: 1,
-    overflow: 'hidden',
-  },
-  map: {
-    flex: 1,
-  },
-  calloutContainer: {
-    backgroundColor: '#FFFFFF',
-    padding: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    minWidth: 150,
-  },
-  calloutTitle: {
-    fontWeight: '700',
-    fontSize: 14,
-    color: '#0F172A',
-    marginBottom: 4,
-  },
-  calloutSub: {
-    fontSize: 12,
-    color: '#64748B',
   },
 });

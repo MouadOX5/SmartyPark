@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Alert } from 'react-native';
 import { getCurrentLocation, Coordinates } from '../utils/location';
 
@@ -26,6 +26,10 @@ export function useLocation() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchLocation();
+  }, []);
 
   return { coords, isLoading, fetchLocation };
 }

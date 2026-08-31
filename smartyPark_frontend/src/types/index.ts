@@ -86,6 +86,8 @@ export interface EspacePublicResponse {
 
 export interface PresenceRequest {
   espacePublicId: number;
+  latitude: number;
+  longitude: number;
 }
 
 export interface PresenceResponse {
@@ -95,6 +97,8 @@ export interface PresenceResponse {
   statut: StatutPresence;
   espacePublicId: number;
   espacePublicNom: string;
+  distanceMetres?: number;
+  motifTerminaison?: string;
 }
 
 // ==========================================

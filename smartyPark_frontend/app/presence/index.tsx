@@ -1,30 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Alert,
-  StatusBar,
-  ActivityIndicator,
-  Animated,
-} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, StatusBar, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import {
-  ArrowLeft,
-  Timer,
-  CheckCircle,
-  StopCircle,
-  User,
-  Users,
-  UserPlus,
-  AlertTriangle,
-  MapPin,
-  Loader2,
-  Navigation
-} from 'lucide-react-native';
+import { ArrowLeft, CheckCircle } from 'lucide-react-native';
+
 import { usePresence } from '../../src/context/PresenceContext';
 import { espacePublicApi } from '../../src/api/espacePublicApi';
 import { affluenceApi } from '../../src/api/affluenceApi';
@@ -32,18 +11,16 @@ import { getCurrentLocation, calculateDistance, Coordinates } from '../../src/ut
 import { StatutAffluence, EspacePublicResponse } from '../../src/types';
 import { formatTimerSeconds } from '../../src/utils/formatters';
 
+import GpsStatusBanner from '../../src/components/presence/GpsStatusBanner';
+import ActivePresenceCard from '../../src/components/presence/ActivePresenceCard';
+import AffluenceSelector from '../../src/components/presence/AffluenceSelector';
+import ProblemReportCard from '../../src/components/presence/ProblemReportCard';
+import PresenceToast from '../../src/components/presence/PresenceToast';
+
 const COLORS = {
   background: '#f4fbf4',
   surface: '#ffffff',
   primary: '#006c49',
-  primaryContainer: '#10b981',
-  onPrimaryContainer: '#00422b',
-  danger: '#ef4444',
-  errorContainer: '#ffdad6',
-  warning: '#f59e0b',
-  warningContainer: '#fef3c7',
-  success: '#10b981',
-  successContainer: '#dcfce7',
   onSurface: '#161d19',
   onSurfaceVariant: '#3c4a42',
   slate100: '#f1f5f9',
@@ -76,28 +53,16 @@ export default function PresenceScreen() {
   const [isTerminating, setIsTerminating] = useState(false);
   const [selectedAffluence, setSelectedAffluence] = useState<StatutAffluence | null>(null);
   const [isSubmittingAffluence, setIsSubmittingAffluence] = useState(false);
+  
+  // --- Toast ---
+  const [toastVisible, setToastVisible] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
 
-  // Pulse animation for GPS
-  const [pulseAnim] = useState(new Animated.Value(0));
+  const showToast = (message: string) => {
+    setToastMessage(message);
+    setToastVisible(true);
+  };
 
-  useEffect(() => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseAnim, {
-          toValue: 1,
-          duration: 1500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulseAnim, {
-          toValue: 0,
-          duration: 1500,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-  }, [pulseAnim]);
-
-  // Load espace info if not active but we have an ID
   useEffect(() => {
     if (!isActive && paramEspaceId) {
       loadEspaceAndLocation(paramEspaceId);
@@ -141,9 +106,18 @@ export default function PresenceScreen() {
 
   const handleStartSession = async () => {
     if (!paramEspaceId) return;
+    if (!location) {
+      Alert.alert('Localisation requise', 'Veuillez attendre la récupération de votre position GPS.');
+      return;
+    }
     setIsStarting(true);
     try {
-      await startPresence(paramEspaceId);
+      await startPresence({
+        espacePublicId: paramEspaceId,
+        latitude: location.latitude,
+        longitude: location.longitude,
+      });
+      showToast('Présence démarrée avec succès !');
     } catch (error: any) {
       const msg = error?.response?.data?.message || 'Erreur lors de la déclaration.';
       Alert.alert('Erreur', msg);
@@ -180,10 +154,7 @@ export default function PresenceScreen() {
   };
 
   const handleValiderAffluence = async () => {
-    if (!selectedAffluence) {
-      Alert.alert('Info', 'Veuillez sélectionner un niveau d\'affluence.');
-      return;
-    }
+    if (!selectedAffluence) return;
     if (!activePresence) return;
 
     setIsSubmittingAffluence(true);
@@ -198,7 +169,7 @@ export default function PresenceScreen() {
         latitude: loc.latitude,
         longitude: loc.longitude,
       });
-      Alert.alert('Merci !', 'Votre déclaration d\'affluence a bien été enregistrée.');
+      showToast('Déclaration enregistrée ! Merci pour votre contribution.');
       setSelectedAffluence(null);
     } catch (e) {
       Alert.alert('Erreur', 'Impossible d\'enregistrer l\'affluence.');
@@ -229,7 +200,7 @@ export default function PresenceScreen() {
         <View style={styles.emptyContainer}>
           <CheckCircle size={64} color={COLORS.slate200} />
           <Text style={styles.emptyTitle}>Aucune présence active</Text>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.primaryButton, { alignSelf: 'center', paddingHorizontal: 32 }]}
             onPress={() => router.replace('/(tabs)')}
           >
@@ -254,180 +225,52 @@ export default function PresenceScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        
-        {/* Top Banner : GPS Verification */}
-        {isActive ? (
-          <View style={[styles.gpsBanner, { backgroundColor: COLORS.successContainer, borderColor: 'rgba(16, 185, 129, 0.2)' }]}>
-            <View style={[styles.gpsIconBox, { backgroundColor: 'rgba(16, 185, 129, 0.2)' }]}>
-              <Animated.View style={[styles.gpsPulse, { backgroundColor: 'rgba(16, 185, 129, 0.3)', transform: [{ scale: pulseAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 1.5] }) }], opacity: pulseAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) }]} />
-              <CheckCircle size={20} color={COLORS.success} />
-            </View>
-            <View style={styles.gpsTexts}>
-              <Text style={[styles.gpsTitle, { color: COLORS.success }]}>Vérification GPS... Position validée</Text>
-              <Text style={styles.gpsSub}>Vous êtes bien sur place.</Text>
-            </View>
-          </View>
-        ) : (
-          <View style={[styles.gpsBanner, { backgroundColor: COLORS.slate100, borderColor: COLORS.slate200 }]}>
-            <View style={[styles.gpsIconBox, { backgroundColor: COLORS.surface }]}>
-              {isLocating ? (
-                <ActivityIndicator size="small" color={COLORS.primary} />
-              ) : locationError ? (
-                <AlertTriangle size={20} color={COLORS.warning} />
-              ) : (
-                <Navigation size={20} color={COLORS.primary} />
-              )}
-            </View>
-            <View style={styles.gpsTexts}>
-              <Text style={[styles.gpsTitle, { color: COLORS.onSurface }]}>
-                {isLocating ? 'Localisation en cours...' : locationError ? 'Position introuvable' : 'Position récupérée'}
-              </Text>
-              <Text style={styles.gpsSub}>
-                {isLocating 
-                  ? 'Veuillez patienter...' 
-                  : locationError 
-                    ? 'Activez le GPS pour une meilleure expérience.'
-                    : `Distance avec l'espace : ${distance} m`}
-              </Text>
-            </View>
-          </View>
-        )}
+        <GpsStatusBanner
+          isActive={isActive}
+          isLocating={isLocating}
+          locationError={locationError}
+          distance={distance}
+        />
 
-        {/* Central Card */}
-        <View style={styles.centralCard}>
-          {isActive ? (
-            <>
-              <View style={styles.timerIconBox}>
-                <Timer size={32} color={COLORS.onPrimaryContainer} />
-              </View>
-              <Text style={styles.timerText}>{formatTimerSeconds(durationSeconds)}</Text>
-              
-              <View style={styles.activeBadgeRow}>
-                <View style={styles.activeDot} />
-                <Text style={styles.activeBadgeText}>
-                  Présence en cours au {activePresence?.espacePublicNom}
-                </Text>
-              </View>
+        <ActivePresenceCard
+          isActive={isActive}
+          isStarting={isStarting}
+          isTerminating={isTerminating}
+          espaceNom={isActive ? activePresence?.espacePublicNom : espace?.nom}
+          durationText={formatTimerSeconds(durationSeconds)}
+          onStart={handleStartSession}
+          onTerminate={handleTerminer}
+        />
 
-              <TouchableOpacity 
-                style={styles.dangerOutlineButton}
-                onPress={handleTerminer}
-                disabled={isTerminating}
-              >
-                {isTerminating ? (
-                  <ActivityIndicator size="small" color={COLORS.danger} />
-                ) : (
-                  <>
-                    <StopCircle size={20} color={COLORS.danger} />
-                    <Text style={styles.dangerOutlineButtonText}>Terminer ma présence</Text>
-                  </>
-                )}
-              </TouchableOpacity>
-            </>
-          ) : (
-            <>
-              <View style={[styles.timerIconBox, { backgroundColor: COLORS.slate100 }]}>
-                <MapPin size={32} color={COLORS.onSurfaceVariant} />
-              </View>
-              <Text style={[styles.timerText, { fontSize: 24, marginBottom: 16 }]}>{espace?.nom}</Text>
-              
-              <Text style={styles.preDeclareDesc}>
-                Vous êtes sur le point de déclarer votre présence dans cet espace public.
-              </Text>
-
-              <TouchableOpacity 
-                style={styles.primaryButton}
-                onPress={handleStartSession}
-                disabled={isStarting}
-              >
-                {isStarting ? (
-                  <ActivityIndicator size="small" color={COLORS.surface} />
-                ) : (
-                  <>
-                    <CheckCircle size={20} color={COLORS.surface} />
-                    <Text style={styles.primaryButtonText}>Déclarer ma présence</Text>
-                  </>
-                )}
-              </TouchableOpacity>
-            </>
-          )}
-        </View>
-
-        {/* Collaborative Zone (only if active) */}
         {isActive && (
           <View style={styles.collabZone}>
-            <View style={styles.collabSection}>
-              <Text style={styles.collabTitle}>Niveau d'affluence actuel</Text>
-              <View style={styles.affluenceGrid}>
-                {/* Faible */}
-                <TouchableOpacity 
-                  style={[styles.affluenceBtn, { backgroundColor: selectedAffluence === 'DISPONIBLE' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(16, 185, 129, 0.1)', borderColor: selectedAffluence === 'DISPONIBLE' ? COLORS.success : 'rgba(16, 185, 129, 0.2)' }]}
-                  onPress={() => setSelectedAffluence('DISPONIBLE')}
-                >
-                  <View style={[styles.affluenceIconBox, { backgroundColor: 'rgba(16, 185, 129, 0.2)' }]}>
-                    <User size={24} color={COLORS.success} />
-                  </View>
-                  <Text style={styles.affluenceBtnText}>Faible</Text>
-                </TouchableOpacity>
+            <AffluenceSelector
+              selectedAffluence={selectedAffluence}
+              isSubmitting={isSubmittingAffluence}
+              onSelect={setSelectedAffluence}
+              onSubmit={handleValiderAffluence}
+            />
 
-                {/* Modéré */}
-                <TouchableOpacity 
-                  style={[styles.affluenceBtn, { backgroundColor: selectedAffluence === 'PRESQUE_SATURE' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(245, 158, 11, 0.1)', borderColor: selectedAffluence === 'PRESQUE_SATURE' ? COLORS.warning : 'rgba(245, 158, 11, 0.2)' }]}
-                  onPress={() => setSelectedAffluence('PRESQUE_SATURE')}
-                >
-                  <View style={[styles.affluenceIconBox, { backgroundColor: 'rgba(245, 158, 11, 0.2)' }]}>
-                    <Users size={24} color={COLORS.warning} />
-                  </View>
-                  <Text style={styles.affluenceBtnText}>Modéré</Text>
-                </TouchableOpacity>
-
-                {/* Saturé */}
-                <TouchableOpacity 
-                  style={[styles.affluenceBtn, { backgroundColor: selectedAffluence === 'SATURE' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(255, 218, 214, 0.3)', borderColor: selectedAffluence === 'SATURE' ? COLORS.danger : COLORS.errorContainer }]}
-                  onPress={() => setSelectedAffluence('SATURE')}
-                >
-                  <View style={[styles.affluenceIconBox, { backgroundColor: COLORS.errorContainer }]}>
-                    <UserPlus size={24} color={COLORS.danger} />
-                  </View>
-                  <Text style={styles.affluenceBtnText}>Saturé</Text>
-                </TouchableOpacity>
-              </View>
-              
-              <TouchableOpacity 
-                style={styles.primaryButton}
-                onPress={handleValiderAffluence}
-                disabled={isSubmittingAffluence || !selectedAffluence}
-              >
-                {isSubmittingAffluence ? (
-                  <ActivityIndicator size="small" color={COLORS.surface} />
-                ) : (
-                  <Text style={styles.primaryButtonText}>Valider l'affluence</Text>
-                )}
-              </TouchableOpacity>
+            <View style={{ marginTop: 16 }}>
+              <ProblemReportCard
+                onPress={() => router.push({
+                  pathname: '/signalements/creer',
+                  params: {
+                    id: activePresence?.espacePublicId.toString() || '',
+                    nom: activePresence?.espacePublicNom || '',
+                  },
+                })}
+              />
             </View>
-
-            {/* Signalement */}
-            <TouchableOpacity 
-              style={styles.signalementBtn}
-              onPress={() => router.push({
-                pathname: '/signalements/creer',
-                params: {
-                  id: activePresence.espacePublicId.toString(),
-                  nom: activePresence.espacePublicNom,
-                },
-              })}
-            >
-              <View style={styles.signalementIconBox}>
-                <AlertTriangle size={24} color={COLORS.danger} />
-              </View>
-              <View style={styles.signalementTexts}>
-                <Text style={styles.signalementTitle}>Signaler un problème / matériel endommagé</Text>
-                <Text style={styles.signalementSub}>(Banc cassé, équipement abîmé, etc.)</Text>
-              </View>
-            </TouchableOpacity>
           </View>
         )}
       </ScrollView>
+
+      <PresenceToast
+        visible={toastVisible}
+        message={toastMessage}
+        onHide={() => setToastVisible(false)}
+      />
     </SafeAreaView>
   );
 }
@@ -445,65 +288,16 @@ const styles = StyleSheet.create({
     height: 64,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.slate100,
+    backgroundColor: COLORS.surface, // Stitch design header is bg-surface
   },
   iconBtn: {
     width: 40, height: 40, borderRadius: 20,
     alignItems: 'center', justifyContent: 'center',
   },
   headerTitle: { fontSize: 18, fontWeight: '700', color: COLORS.primary },
-  content: { padding: 20, gap: 24, paddingBottom: 40 },
+  content: { padding: 20, gap: 24, paddingBottom: 100 }, // Added extra padding for the toast/bottom
   
-  gpsBanner: {
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-  },
-  gpsIconBox: {
-    width: 40, height: 40, borderRadius: 20,
-    alignItems: 'center', justifyContent: 'center',
-  },
-  gpsPulse: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 20 },
-  gpsTexts: { flex: 1 },
-  gpsTitle: { fontSize: 14, fontWeight: '600' },
-  gpsSub: { fontSize: 12, color: COLORS.onSurfaceVariant, marginTop: 4 },
-
-  centralCard: {
-    backgroundColor: COLORS.surface,
-    borderWidth: 1, borderColor: COLORS.slate100,
-    borderRadius: 12, padding: 24,
-    alignItems: 'center',
-    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2,
-  },
-  timerIconBox: {
-    width: 64, height: 64, borderRadius: 32,
-    backgroundColor: 'rgba(16, 185, 129, 0.2)',
-    alignItems: 'center', justifyContent: 'center',
-    marginBottom: 16,
-  },
-  timerText: { fontSize: 36, fontWeight: '700', color: COLORS.primary, marginBottom: 8, fontVariant: ['tabular-nums'] },
-  activeBadgeRow: {
-    flexDirection: 'row', alignItems: 'center', gap: 6,
-    backgroundColor: '#e8f0e9', paddingHorizontal: 12, paddingVertical: 4,
-    borderRadius: 999, marginBottom: 24,
-  },
-  activeDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: COLORS.success },
-  activeBadgeText: { fontSize: 12, fontWeight: '500', color: COLORS.onSurfaceVariant },
-  
-  preDeclareDesc: {
-    fontSize: 14, color: COLORS.onSurfaceVariant,
-    textAlign: 'center', marginBottom: 24, paddingHorizontal: 16,
-  },
-
-  dangerOutlineButton: {
-    width: '100%',
-    borderWidth: 2, borderColor: COLORS.danger,
-    borderRadius: 999, paddingVertical: 12,
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-  },
-  dangerOutlineButtonText: { fontSize: 14, fontWeight: '600', color: COLORS.danger },
+  collabZone: { gap: 16, marginTop: 8 },
   
   primaryButton: {
     width: '100%',
@@ -513,35 +307,4 @@ const styles = StyleSheet.create({
     shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 2,
   },
   primaryButtonText: { fontSize: 16, fontWeight: '600', color: COLORS.surface },
-
-  collabZone: { gap: 16, marginTop: 8 },
-  collabSection: { gap: 16 },
-  collabTitle: { fontSize: 18, fontWeight: '600', color: COLORS.onSurface },
-  
-  affluenceGrid: { flexDirection: 'row', gap: 12 },
-  affluenceBtn: {
-    flex: 1, borderWidth: 1, borderRadius: 12, padding: 12,
-    alignItems: 'center', gap: 8,
-  },
-  affluenceIconBox: {
-    width: 48, height: 48, borderRadius: 24,
-    alignItems: 'center', justifyContent: 'center',
-  },
-  affluenceBtnText: { fontSize: 14, fontWeight: '700', color: COLORS.onSurface },
-  
-  signalementBtn: {
-    backgroundColor: 'rgba(255, 218, 214, 0.2)',
-    borderWidth: 1, borderColor: 'rgba(255, 218, 214, 0.5)',
-    borderRadius: 12, padding: 16,
-    flexDirection: 'row', alignItems: 'flex-start', gap: 12,
-    marginTop: 16,
-  },
-  signalementIconBox: {
-    width: 48, height: 48, borderRadius: 24,
-    backgroundColor: COLORS.errorContainer,
-    alignItems: 'center', justifyContent: 'center',
-  },
-  signalementTexts: { flex: 1 },
-  signalementTitle: { fontSize: 14, fontWeight: '700', color: COLORS.onSurface },
-  signalementSub: { fontSize: 12, color: COLORS.onSurfaceVariant, marginTop: 4 },
 });

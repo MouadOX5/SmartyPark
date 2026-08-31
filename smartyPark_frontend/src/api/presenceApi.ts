@@ -1,3 +1,6 @@
+// ============================================================================
+// File: presenceApi.ts
+// ============================================================================
 import { apiClient } from './client';
 import { PresenceRequest, PresenceResponse } from '../types';
 
@@ -5,6 +8,8 @@ export const presenceApi = {
   /**
    * Démarre une présence / séance dans un espace public
    * POST /api/presences/demarrer
+   * 
+   * @param request { espacePublicId, latitude, longitude }
    */
   async demarrer(request: PresenceRequest): Promise<PresenceResponse> {
     const response = await apiClient.post<PresenceResponse>('/presences/demarrer', request);
@@ -35,6 +40,23 @@ export const presenceApi = {
    */
   async hasActive(): Promise<boolean> {
     const response = await apiClient.get<boolean>('/presences/has-active');
+    return response.data;
+  },
+
+  /**
+   * Vérifie la position GPS et termine automatiquement si sortie de zone
+   * POST /api/presences/verifier-position
+   */
+  async verifierPosition(latitude: number, longitude: number): Promise<{
+    dansZone: boolean;
+    distanceMetres: number;
+    presenceActive: boolean;
+    motif: string | null;
+  }> {
+    const response = await apiClient.post('/presences/verifier-position', {
+      latitude,
+      longitude,
+    });
     return response.data;
   },
 
