@@ -9,8 +9,11 @@ import {
   Alert,
   StatusBar,
   RefreshControl,
+  ImageBackground,
+  Share,
+  Platform,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Linking from 'expo-linking';
 import {
@@ -18,17 +21,16 @@ import {
   MapPin,
   Users,
   Navigation,
-  Play,
   Activity,
-  AlertTriangle,
+  Share as ShareIcon,
+  CheckCircle,
+  Info,
 } from 'lucide-react-native';
 import { espacePublicApi } from '../../src/api/espacePublicApi';
 import { presenceApi } from '../../src/api/presenceApi';
 import { EspacePublicResponse } from '../../src/types';
-import { COLORS } from '../../src/constants/colors';
 import { AffluenceBadge, getAffluenceText } from '../../src/components/AffluenceBadge';
 import { AffluenceDonut } from '../../src/components/AffluenceDonut';
-import { Button } from '../../src/components/ui/Button';
 import { formatCategoryName } from '../../src/utils/formatters';
 import { usePresence } from '../../src/context/PresenceContext';
 
@@ -39,10 +41,18 @@ const CATEGORY_EMOJIS: Record<string, string> = {
   ENFANTS: '🎠',
 };
 
+const CATEGORY_BG: Record<string, string> = {
+  FOOTBALL: '#E3F2FD',
+  BASKETBALL: '#FFF3E0',
+  STREET_WORKOUT: '#E8F5E9',
+  ENFANTS: '#FCE4EC',
+};
+
 export default function EspaceDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const espaceId = Number(id);
+  const insets = useSafeAreaInsets();
 
   const { isActive, startPresence, activePresence } = usePresence();
 
@@ -51,6 +61,7 @@ export default function EspaceDetailScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [isStartingSession, setIsStartingSession] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   const loadData = async () => {
     try {
@@ -74,8 +85,23 @@ export default function EspaceDetailScreen() {
 
   const handleItineraire = () => {
     if (!espace) return;
-    const url = `https://www.google.com/maps/dir/?api=1&destination=${espace.latitude},${espace.longitude}`;
-    Linking.openURL(url);
+    const url = Platform.select({
+      ios: `maps:0,0?q=${espace.latitude},${espace.longitude}`,
+      android: `geo:0,0?q=${espace.latitude},${espace.longitude}(${espace.nom})`,
+      default: `https://www.google.com/maps/dir/?api=1&destination=${espace.latitude},${espace.longitude}`,
+    });
+    Linking.openURL(url as string);
+  };
+
+  const handleShare = async () => {
+    if (!espace) return;
+    try {
+      await Share.share({
+        message: `Découvre "${espace.nom}" sur SmartyPark ! Adresse : ${espace.adresse}`,
+      });
+    } catch (error) {
+      console.error('Erreur lors du partage', error);
+    }
   };
 
   const handleStartSession = async () => {
@@ -95,16 +121,11 @@ export default function EspaceDetailScreen() {
       return;
     }
 
-    setIsStartingSession(true);
-    try {
-      await startPresence(espaceId);
-      router.push('/presence/');
-    } catch (error: any) {
-      const message = error?.response?.data?.message;
-      Alert.alert('Erreur', message || 'Impossible de démarrer la séance.');
-    } finally {
-      setIsStartingSession(false);
-    }
+    // Go to the preparation and declaration screen
+    router.push({
+      pathname: '/presence/',
+      params: { espaceId: espaceId.toString() },
+    });
   };
 
   const onRefresh = () => {
@@ -115,301 +136,407 @@ export default function EspaceDetailScreen() {
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+        <ActivityIndicator size="large" color="#006c49" />
       </View>
     );
   }
 
   if (!espace) {
     return (
-      <SafeAreaView style={styles.safe}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <ArrowLeft size={22} color="#0F172A" />
+      <SafeAreaView style={styles.errorContainer}>
+        <TouchableOpacity style={styles.errorBackBtn} onPress={() => router.back()}>
+          <ArrowLeft size={22} color="#161d19" />
         </TouchableOpacity>
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>Espace public introuvable</Text>
-          <Button title="Retour" onPress={() => router.back()} fullWidth={false} size="sm" />
-        </View>
+        <Text style={styles.errorText}>Espace public introuvable</Text>
+        <TouchableOpacity style={styles.btnPrimary} onPress={() => router.back()}>
+          <Text style={styles.btnPrimaryText}>Retour</Text>
+        </TouchableOpacity>
       </SafeAreaView>
     );
   }
 
   const emoji = CATEGORY_EMOJIS[espace.categorie] || '🏟️';
+  const catBg = CATEGORY_BG[espace.categorie] || '#E8F5E9';
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
 
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={styles.backBtnCircle}
-          activeOpacity={0.7}
-        >
-          <ArrowLeft size={20} color="#0F172A" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle} numberOfLines={1}>
-          {espace.nom}
-        </Text>
-        <View style={{ width: 40 }} />
+      {/* Hero Section */}
+      <View style={styles.heroContainer}>
+        {espace.imageUrl && !imageError ? (
+          <ImageBackground
+            source={{ uri: espace.imageUrl }}
+            style={styles.heroImage}
+            onError={() => setImageError(true)}
+          >
+            <View style={styles.gradientOverlay} />
+          </ImageBackground>
+        ) : (
+          <View style={[styles.heroImage, { backgroundColor: catBg }]}>
+            <Text style={styles.heroEmoji}>{emoji}</Text>
+            <View style={styles.gradientOverlay} />
+          </View>
+        )}
+
+        <SafeAreaView edges={['top']} style={styles.headerOverlay}>
+          <TouchableOpacity style={styles.headerBtn} onPress={() => router.back()} activeOpacity={0.8}>
+            <ArrowLeft size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.headerBtn} onPress={handleShare} activeOpacity={0.8}>
+            <ShareIcon size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+        </SafeAreaView>
       </View>
 
+      {/* Main Content */}
       <ScrollView
+        style={styles.mainContent}
+        contentContainerStyle={styles.mainContentScroll}
         showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={isRefreshing}
-            onRefresh={onRefresh}
-            tintColor={COLORS.primary}
-          />
-        }
+        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} tintColor="#006c49" />}
       >
-        {/* Bannière d'en-tête */}
-        <View style={styles.hero}>
-          <Text style={styles.heroEmoji}>{emoji}</Text>
-          <View style={styles.heroInfo}>
-            <Text style={styles.heroCategory}>{formatCategoryName(espace.categorie)}</Text>
-            <Text style={styles.heroName}>{espace.nom}</Text>
+        {/* Title Section */}
+        <View style={styles.titleSection}>
+          <View style={styles.catBadge}>
+            <Text style={styles.catBadgeText}>{formatCategoryName(espace.categorie)}</Text>
+          </View>
+          <Text style={styles.title}>{espace.nom}</Text>
+          <View style={styles.addressRow}>
+            <MapPin size={16} color="#6c7a71" />
+            <Text style={styles.addressText}>{espace.adresse}</Text>
+          </View>
+          {espace.estValide && (
+            <View style={styles.verifiedRow}>
+              <CheckCircle size={16} color="#006c49" />
+              <Text style={styles.verifiedText}>Validé par la communauté</Text>
+            </View>
+          )}
+        </View>
+
+        {/* Description Card */}
+        <View style={styles.sectionContainer}>
+          <View style={styles.card}>
+            <View style={styles.cardHeader}>
+              <Info size={18} color="#161d19" />
+              <Text style={styles.cardTitle}>Description & Informations</Text>
+            </View>
+            <Text style={styles.descText}>{espace.description}</Text>
           </View>
         </View>
 
-        {/* Section Affluence Qualitative avec Donut */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Affluence actuelle</Text>
-          <View style={styles.affluenceDonutRow}>
-            <AffluenceDonut statut={espace.statutAffluenceActuel} size={90} />
-            <View style={styles.affluenceDonutInfo}>
-              <AffluenceBadge statut={espace.statutAffluenceActuel} size="md" />
-              <Text style={styles.affluenceDonutText}>
-                {getAffluenceText(espace.statutAffluenceActuel)}
-              </Text>
+        {/* Affluence Real-time */}
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>Affluence en temps réel</Text>
+          <View style={[styles.card, styles.affluenceCard]}>
+            <View style={styles.affluenceRow}>
+              <View style={styles.donutWrapper}>
+                <AffluenceDonut statut={espace.statutAffluenceActuel} size={110} />
+              </View>
+              <View style={styles.affluenceInfo}>
+                <AffluenceBadge statut={espace.statutAffluenceActuel} size="md" />
+                <Text style={styles.affluenceDescText}>
+                  {getAffluenceText(espace.statutAffluenceActuel)}
+                </Text>
+
+                <View style={styles.activeUsersBadge}>
+                  <Users size={16} color="#006c49" />
+                  <Text style={styles.activeUsersText}>
+                    <Text style={{ fontWeight: '700' }}>{activeCount}</Text> personne{activeCount > 1 ? 's' : ''} présente{activeCount > 1 ? 's' : ''}
+                  </Text>
+                </View>
+              </View>
             </View>
           </View>
-          <View style={styles.usersCountRow}>
-            <Users size={16} color={COLORS.primary} />
-            <Text style={styles.usersCountText}>
-              <Text style={styles.boldText}>{activeCount}</Text> personne{activeCount > 1 ? 's' : ''} actuellement présente{activeCount > 1 ? 's' : ''}
-            </Text>
-          </View>
         </View>
 
-        {/* Section Informations */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Localisation & Description</Text>
-          <View style={styles.infoRow}>
-            <MapPin size={16} color={COLORS.primary} />
-            <Text style={styles.infoText}>{espace.adresse}</Text>
-          </View>
-          {espace.description ? (
-            <Text style={styles.descriptionText}>{espace.description}</Text>
-          ) : null}
-        </View>
-
-        {/* Actions principales */}
-        <View style={styles.actionsContainer}>
-          {/* 1. Itinéraire */}
-          <Button
-            title="Itinéraire (Google Maps)"
-            variant="outline"
-            size="md"
-            leftIcon={<Navigation size={18} color={COLORS.primary} />}
-            onPress={handleItineraire}
-          />
-
-          {/* 2. Déclarer l'affluence */}
-          <Button
-            title="Déclarer l'affluence"
-            variant="secondary"
-            size="md"
-            leftIcon={<Activity size={18} color={COLORS.primary} />}
-            onPress={() =>
-              router.push({
-                pathname: '/affluence/declarer',
-                params: { id: espace.id.toString(), nom: espace.nom },
-              })
-            }
-          />
-
-          {/* 3. Déclarer ma présence -> Commencer ma séance */}
-          <Button
-            title={
-              isActive && activePresence?.espacePublicId === espaceId
-                ? '▶  Voir ma session en cours'
-                : '▶  Commencer ma séance'
-            }
-            variant="primary"
-            size="lg"
-            loading={isStartingSession}
-            disabled={isStartingSession}
-            onPress={handleStartSession}
-          />
-
-          {/* 4. Signaler un problème */}
-          <Button
-            title="Signaler un problème"
-            variant="dangerOutline"
-            size="md"
-            leftIcon={<AlertTriangle size={18} color={COLORS.danger} />}
-            onPress={() =>
-              router.push({
-                pathname: '/signalements/creer',
-                params: { id: espace.id.toString(), nom: espace.nom },
-              })
-            }
-          />
-        </View>
-
-        <View style={{ height: 40 }} />
       </ScrollView>
-    </SafeAreaView>
+
+      {/* Fixed Action Zone */}
+      <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, 16) }]}>
+        <View style={styles.bottomBarInner}>
+          <TouchableOpacity style={styles.btnOutline} onPress={handleItineraire} activeOpacity={0.8}>
+            <Navigation size={20} color="#1e293b" />
+            <Text style={styles.btnOutlineText}>Y aller (Maps)</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.btnPrimary} onPress={handleStartSession} disabled={isStartingSession} activeOpacity={0.8}>
+            {isStartingSession ? (
+              <ActivityIndicator color="#FFFFFF" size="small" />
+            ) : (
+              <>
+                <Activity size={20} color="#FFFFFF" />
+                <Text style={styles.btnPrimaryText}>
+                  {isActive && activePresence?.espacePublicId === espaceId
+                    ? 'Session en cours'
+                    : 'Déclarer ma présence'}
+                </Text>
+              </>
+            )}
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: {
+  container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#f4fbf4', // background
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#f4fbf4',
   },
   errorContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 16,
-  },
-  errorText: {
-    fontSize: 16,
-    color: '#64748B',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
-  },
-  headerTitle: {
-    flex: 1,
-    fontSize: 17,
-    fontWeight: '700',
-    color: '#0F172A',
-    textAlign: 'center',
-    marginHorizontal: 8,
-  },
-  backBtn: {
-    padding: 8,
-  },
-  backBtnCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#F1F5F9',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  hero: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 24,
-    backgroundColor: COLORS.primarySoft,
-    gap: 16,
-  },
-  heroEmoji: {
-    fontSize: 48,
-  },
-  heroInfo: {
-    flex: 1,
-  },
-  heroCategory: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: COLORS.primary,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginBottom: 4,
-  },
-  heroName: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: '#0F172A',
-  },
-  section: {
-    backgroundColor: '#FFFFFF',
-    marginHorizontal: 16,
-    marginTop: 16,
-    borderRadius: 16,
     padding: 20,
+    backgroundColor: '#f4fbf4',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  errorBackBtn: {
+    position: 'absolute',
+    top: 50,
+    left: 20,
+    padding: 10,
+    backgroundColor: '#ffffff',
+    borderRadius: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
   },
-  sectionTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#0F172A',
-    marginBottom: 12,
+  errorText: {
+    fontSize: 16,
+    color: '#6c7a71',
+    marginBottom: 20,
   },
-  affluenceDonutRow: {
+  heroContainer: {
+    width: '100%',
+    height: 320, // Approx 45vh for average mobile, min-h-[300px]
+    position: 'relative',
+  },
+  heroImage: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  heroEmoji: {
+    fontSize: 80,
+    opacity: 0.8,
+  },
+  gradientOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(30, 41, 59, 0.4)', // slate-800/40 gradient logic
+  },
+  headerOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    zIndex: 10,
+  },
+  headerBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.2)', // backdrop-blur-md fallback
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  mainContent: {
+    flex: 1,
+    backgroundColor: '#f4fbf4', // surface
+    marginTop: -24, // -mt-6
+    borderTopLeftRadius: 24, // rounded-t-xl -> in RN rounded-t-3xl is better for -mt-6
+    borderTopRightRadius: 24,
+    zIndex: 20,
+  },
+  mainContentScroll: {
+    paddingBottom: 120, // space for bottom bar
+  },
+  titleSection: {
+    paddingHorizontal: 20,
+    paddingTop: 24, // pt-lg
+    paddingBottom: 16, // pb-md
+  },
+  catBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(16, 185, 129, 0.15)', // primary-container/15
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 999,
+    marginBottom: 8,
+  },
+  catBadgeText: {
+    color: '#006c49', // primary
+    fontSize: 12,
+    fontWeight: '500',
+    textTransform: 'uppercase',
+  },
+  title: {
+    fontSize: 24, // headline-lg-mobile
+    fontWeight: '700',
+    color: '#161d19', // on-surface
+    marginBottom: 8,
+  },
+  addressRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16,
+    gap: 6,
+  },
+  addressText: {
+    fontSize: 14,
+    color: '#3c4a42', // on-surface-variant
+    flex: 1,
+  },
+  verifiedRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 12,
+  },
+  verifiedText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#006c49',
+  },
+  sectionContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+  },
+  sectionTitle: {
+    fontSize: 20, // headline-md
+    fontWeight: '600',
+    color: '#161d19', // on-surface
     marginBottom: 16,
   },
-  affluenceDonutInfo: {
-    flex: 1,
-    gap: 8,
+  card: {
+    backgroundColor: '#ffffff', // surface-container-lowest
+    borderRadius: 12, // rounded-xl
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#f1f5f9', // slate-100
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    elevation: 2,
   },
-  affluenceDonutText: {
-    fontSize: 13,
-    color: '#475569',
-    lineHeight: 18,
-  },
-  usersCountRow: {
+  cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#F8FAFC',
-    padding: 10,
-    borderRadius: 10,
+    marginBottom: 12,
   },
-  usersCountText: {
-    fontSize: 13,
-    color: '#475569',
+  cardTitle: {
+    fontSize: 14, // label-lg
+    fontWeight: '600',
+    color: '#161d19',
   },
-  boldText: {
-    fontWeight: '700',
-    color: '#0F172A',
+  descText: {
+    fontSize: 14, // body-md
+    color: '#3c4a42', // on-surface-variant
+    lineHeight: 20,
   },
-  infoRow: {
+  affluenceCard: {
+    padding: 24, // p-lg
+  },
+  affluenceRow: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: 24,
+  },
+  donutWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  affluenceInfo: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  affluenceDescText: {
+    fontSize: 14,
+    color: '#3c4a42',
+    textAlign: 'center',
+    marginTop: 8,
+    marginBottom: 16,
+  },
+  activeUsersBadge: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 8,
-    marginBottom: 10,
+    alignItems: 'center',
+    backgroundColor: '#eef6ee', // surface-container-low
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    gap: 6,
   },
-  infoText: {
-    fontSize: 14,
-    color: '#475569',
+  activeUsersText: {
+    fontSize: 12,
+    color: '#006c49',
+  },
+  bottomBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#ffffff',
+    borderTopWidth: 1,
+    borderTopColor: '#f1f5f9',
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    elevation: 8,
+    zIndex: 50,
+  },
+  bottomBarInner: {
+    flexDirection: 'row',
+    gap: 16,
+    maxWidth: 768,
+    alignSelf: 'center',
+    width: '100%',
+  },
+  btnOutline: {
     flex: 1,
+    height: 48,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#e2e8f0', // slate-200
+    backgroundColor: 'transparent',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
   },
-  descriptionText: {
+  btnOutlineText: {
     fontSize: 14,
-    color: '#64748B',
-    lineHeight: 22,
-    marginTop: 6,
+    fontWeight: '600',
+    color: '#1e293b', // slate-800
   },
-  actionsContainer: {
-    padding: 16,
-    gap: 12,
+  btnPrimary: {
+    flex: 1,
+    height: 48,
+    borderRadius: 8,
+    backgroundColor: '#006c49', // primary
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  btnPrimaryText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#ffffff',
   },
 });
