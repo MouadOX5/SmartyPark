@@ -27,6 +27,7 @@ public class PropositionEspaceResponse {
     private StatutProposition statut;
     private String motifRefus;
     private LocalDateTime dateProposition;
+    private String imageUrl;
 
     // Informations minimales du proposant
     private Long proposeParkId;

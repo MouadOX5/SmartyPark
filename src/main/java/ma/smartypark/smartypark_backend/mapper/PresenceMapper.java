@@ -20,6 +20,16 @@ public class PresenceMapper {
             espacePublicNom = presence.getEspacePublic().getNom();
         }
 
+        Long utilisateurId = null;
+        String utilisateurNom = null;
+        String utilisateurPrenom = null;
+
+        if (presence.getUtilisateur() != null) {
+            utilisateurId = presence.getUtilisateur().getId();
+            utilisateurNom = presence.getUtilisateur().getNom();
+            utilisateurPrenom = presence.getUtilisateur().getPrenom();
+        }
+
         return PresenceResponse.builder()
                 .id(presence.getId())
                 .heureArrivee(presence.getHeureArrivee())
@@ -27,6 +37,9 @@ public class PresenceMapper {
                 .statut(presence.getStatut())
                 .espacePublicId(espacePublicId)
                 .espacePublicNom(espacePublicNom)
+                .utilisateurId(utilisateurId)
+                .utilisateurNom(utilisateurNom)
+                .utilisateurPrenom(utilisateurPrenom)
                 .distanceDeclarationMetres(presence.getDistanceDeclarationMetres())
                 .motifTerminaison(presence.getMotifTerminaison())
                 .build();

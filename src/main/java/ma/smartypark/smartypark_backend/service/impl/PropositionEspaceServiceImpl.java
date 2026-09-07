@@ -6,18 +6,22 @@ import ma.smartypark.smartypark_backend.dto.proposition.PropositionEspaceRespons
 import ma.smartypark.smartypark_backend.entity.EspacePublic;
 import ma.smartypark.smartypark_backend.entity.PropositionEspace;
 import ma.smartypark.smartypark_backend.entity.StatutProposition;
+import ma.smartypark.smartypark_backend.entity.TypeNotification;
 import ma.smartypark.smartypark_backend.entity.Utilisateur;
 import ma.smartypark.smartypark_backend.mapper.EspacePublicMapper;
 import ma.smartypark.smartypark_backend.mapper.PropositionEspaceMapper;
 import ma.smartypark.smartypark_backend.repository.EspacePublicRepository;
 import ma.smartypark.smartypark_backend.repository.PropositionEspaceRepository;
 import ma.smartypark.smartypark_backend.service.JournalService;
+import ma.smartypark.smartypark_backend.service.NotificationService;
 import ma.smartypark.smartypark_backend.service.PropositionEspaceService;
 import ma.smartypark.smartypark_backend.service.UtilisateurService;
 import ma.smartypark.smartypark_backend.exception.BusinessException;
 import ma.smartypark.smartypark_backend.exception.ResourceNotFoundException;
+import ma.smartypark.smartypark_backend.service.FileStorageService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
 import java.util.List;
@@ -33,10 +37,12 @@ public class PropositionEspaceServiceImpl implements PropositionEspaceService {
     private final EspacePublicRepository espacePublicRepository;
     private final EspacePublicMapper espacePublicMapper;
     private final JournalService journalService;
+    private final FileStorageService fileStorageService;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional
-    public PropositionEspaceResponse creer(PropositionEspaceRequest request) {
+    public PropositionEspaceResponse creer(PropositionEspaceRequest request, MultipartFile image) {
         Utilisateur utilisateur = utilisateurService.getCurrentUser();
 
         List<StatutProposition> statuts = Arrays.asList(
@@ -61,6 +67,10 @@ public class PropositionEspaceServiceImpl implements PropositionEspaceService {
         PropositionEspace proposition = propositionMapper.toEntity(request);
         proposition.setProposePark(utilisateur);
         proposition.setStatut(StatutProposition.EN_ATTENTE);
+
+        if (image != null && !image.isEmpty()) {
+            proposition.setImageUrl(fileStorageService.storeEspaceImage(image));
+        }
 
         PropositionEspace saved =
                 propositionRepository.save(proposition);
@@ -102,7 +112,6 @@ public class PropositionEspaceServiceImpl implements PropositionEspaceService {
                 .toList();
     }
 
-    /*--------------------------------- autre logic de validation + creation d'espace public ------------------------
     @Override
     @Transactional
     public PropositionEspaceResponse valider(Long id) {
@@ -113,47 +122,25 @@ public class PropositionEspaceServiceImpl implements PropositionEspaceService {
             throw new BusinessException("Cette proposition a déjà été traitée");
         }
 
-        // Transformation de la proposition en espace public
-        EspacePublic espace =
-                espacePublicMapper.fromPropositionValidee(proposition);
-
-        // Enregistrement de l'espace public
+        // Transformation de la proposition en espace public (photo incluse)
+        EspacePublic espace = espacePublicMapper.fromPropositionValidee(proposition);
         espacePublicRepository.save(espace);
 
-        // Validation de la proposition
-        proposition.setStatut(StatutProposition.VALIDEE);
-
-        propositionRepository.save(proposition);
-
-        journalService.log(
-                "VALIDATION_PROPOSITION",
-                "La proposition " + proposition.getId()
-                        + " a été validée et transformée en espace public"
-        );
-                return propositionMapper.toResponse(proposition);
-
-
-
-    }
-        ------------------------------------------------------------------------------ */
-
-    @Override
-    @Transactional
-    public PropositionEspaceResponse valider(Long id) {
-        PropositionEspace proposition = propositionRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Proposition introuvable"));
-
-        if (proposition.getStatut() != StatutProposition.EN_ATTENTE) {
-            throw new BusinessException("Cette proposition a déjà été traitée");
-        }
-
-        // Mise à jour uniquement du statut
         proposition.setStatut(StatutProposition.VALIDEE);
         PropositionEspace propositionValidee = propositionRepository.save(proposition);
 
         journalService.log(
                 "VALIDATION_PROPOSITION",
-                "La proposition " + propositionValidee.getId() + " a été validée."
+                "La proposition " + propositionValidee.getId()
+                        + " a été validée et transformée en espace public (ID : " + espace.getId() + ")"
+        );
+
+        notificationService.creer(
+                propositionValidee.getProposePark(),
+                TypeNotification.PROPOSITION_VALIDEE,
+                "Votre proposition a été validée ! 🎉",
+                "Votre proposition \"" + propositionValidee.getNom() + "\" a été validée et est maintenant visible par tous les utilisateurs.",
+                espace.getId()
         );
 
         return propositionMapper.toResponse(propositionValidee);
@@ -180,6 +167,14 @@ public class PropositionEspaceServiceImpl implements PropositionEspaceService {
                 "La proposition " + propositionRefusee.getId()
                         + " a été rejetée."
                         + " Motif : " + motifRefus
+        );
+
+        notificationService.creer(
+                propositionRefusee.getProposePark(),
+                TypeNotification.PROPOSITION_REJETEE,
+                "Votre proposition a été refusée",
+                "Votre proposition \"" + propositionRefusee.getNom() + "\" a été refusée. Motif : " + motifRefus,
+                propositionRefusee.getId()
         );
 
         return propositionMapper.toResponse(propositionRefusee);

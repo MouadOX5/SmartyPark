@@ -3,10 +3,14 @@ package ma.smartypark.smartypark_backend.mapper;
 import ma.smartypark.smartypark_backend.dto.proposition.PropositionEspaceRequest;
 import ma.smartypark.smartypark_backend.dto.proposition.PropositionEspaceResponse;
 import ma.smartypark.smartypark_backend.entity.PropositionEspace;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class PropositionEspaceMapper {
+
+    private final ImageUrlResolver imageUrlResolver;
 
     public PropositionEspace toEntity(PropositionEspaceRequest request) {
         if (request == null) {
@@ -38,6 +42,8 @@ public class PropositionEspaceMapper {
             proposeParkPrenom = proposition.getProposePark().getPrenom();
         }
 
+        String imageUrl = imageUrlResolver.resolve(proposition.getImageUrl());
+
         return PropositionEspaceResponse.builder()
                 .id(proposition.getId())
                 .nom(proposition.getNom())
@@ -49,6 +55,7 @@ public class PropositionEspaceMapper {
                 .statut(proposition.getStatut())
                 .motifRefus(proposition.getMotifRefus())
                 .dateProposition(proposition.getDateProposition())
+                .imageUrl(imageUrl)
                 .proposeParkId(proposeParkId)
                 .proposeParkNom(proposeParkNom)
                 .proposeParkPrenom(proposeParkPrenom)

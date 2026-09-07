@@ -3,25 +3,37 @@ package ma.smartypark.smartypark_backend.service.impl;
 import ma.smartypark.smartypark_backend.exception.BusinessException;
 import ma.smartypark.smartypark_backend.exception.ResourceNotFoundException;
 import ma.smartypark.smartypark_backend.service.FileStorageService;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Stockage des images (espaces publics et signalements) sur Supabase Storage,
+ * via son API REST S3-compatible, plutôt que sur le disque local.
+ *
+ * - Bucket "espaces" (public) : les photos d'espaces publics doivent être
+ *   chargeables directement par <Image> côté mobile, sans authentification.
+ * - Bucket "signalements" (privé) : les photos ne sont accessibles qu'en
+ *   passant par le backend (voir SignalementController -> getPhoto),
+ *   lui-même protégé par @PreAuthorize MODERATEUR/ADMINISTRATEUR. Le backend
+ *   utilise la clé service_role pour lire le fichier, jamais exposée au client.
+ */
 @Service
 public class FileStorageServiceImpl implements FileStorageService {
 
-    private final Path signalementStorageLocation;
-    private final Path espaceStorageLocation;
+    private static final String ESPACES_BUCKET = "espaces";
+    private static final String SIGNALEMENTS_BUCKET = "signalements";
 
     private static final List<String> ALLOWED_IMAGE_TYPES = List.of(
             "image/jpeg", "image/png", "image/webp"
@@ -29,42 +41,42 @@ public class FileStorageServiceImpl implements FileStorageService {
 
     private static final List<String> ALLOWED_EXTENSIONS = List.of(".jpg", ".jpeg", ".png", ".webp");
 
-    public FileStorageServiceImpl() {
-        this.signalementStorageLocation = Paths.get("uploads/signalements").toAbsolutePath().normalize();
-        this.espaceStorageLocation = Paths.get("uploads/espaces").toAbsolutePath().normalize();
-        try {
-            Files.createDirectories(this.signalementStorageLocation);
-            Files.createDirectories(this.espaceStorageLocation);
-        } catch (IOException e) {
-            throw new BusinessException("Impossible de créer le dossier de stockage des images");
-        }
-    }
+    @Value("${supabase.url}")
+    private String supabaseUrl;
+
+    @Value("${supabase.service-key}")
+    private String supabaseServiceKey;
+
+    private final HttpClient httpClient = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofSeconds(15))
+            .build();
 
     // ============================================================
-    // SIGNALEMENTS — EXISTANT
+    // SIGNALEMENTS (bucket privé)
     // ============================================================
     @Override
     public String storeSignalementPhoto(MultipartFile file) {
-        return storeFile(file, this.signalementStorageLocation, "uploads/signalements/");
+        validateImageFile(file);
+        return uploadToSupabase(file, SIGNALEMENTS_BUCKET);
     }
 
     @Override
     public Resource loadSignalementPhoto(String photoPath) {
-        return loadFile(photoPath, this.signalementStorageLocation);
+        return downloadFromSupabase(photoPath, SIGNALEMENTS_BUCKET);
     }
 
     // ============================================================
-    // ESPACES PUBLICS — NOUVEAU
+    // ESPACES PUBLICS (bucket public)
     // ============================================================
     @Override
     public String storeEspaceImage(MultipartFile file) {
         validateImageFile(file);
-        return storeFile(file, this.espaceStorageLocation, "uploads/espaces/");
+        return uploadToSupabase(file, ESPACES_BUCKET);
     }
 
     @Override
     public Resource loadEspaceImage(String imagePath) {
-        return loadFile(imagePath, this.espaceStorageLocation);
+        return downloadFromSupabase(imagePath, ESPACES_BUCKET);
     }
 
     @Override
@@ -72,16 +84,19 @@ public class FileStorageServiceImpl implements FileStorageService {
         if (imagePath == null || imagePath.isBlank()) {
             return;
         }
-        String fileName = Paths.get(imagePath).getFileName().toString();
-        Path target = this.espaceStorageLocation.resolve(fileName).normalize();
-
-        if (!target.startsWith(this.espaceStorageLocation)) {
-            throw new BusinessException("Chemin de fichier invalide");
-        }
+        String objectKey = extractObjectKey(imagePath, ESPACES_BUCKET);
 
         try {
-            Files.deleteIfExists(target);
-        } catch (IOException e) {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(supabaseUrl + "/storage/v1/object/" + ESPACES_BUCKET + "/" + objectKey))
+                    .header("Authorization", "Bearer " + supabaseServiceKey)
+                    .header("apikey", supabaseServiceKey)
+                    .DELETE()
+                    .build();
+
+            httpClient.send(request, HttpResponse.BodyHandlers.discarding());
+        } catch (IOException | InterruptedException e) {
+            Thread.currentThread().interrupt();
             throw new BusinessException("Erreur lors de la suppression de l'image");
         }
     }
@@ -101,7 +116,6 @@ public class FileStorageServiceImpl implements FileStorageService {
             );
         }
 
-        // Vérification de l'extension
         String originalName = file.getOriginalFilename();
         if (originalName != null) {
             String lowerName = originalName.toLowerCase();
@@ -114,42 +128,95 @@ public class FileStorageServiceImpl implements FileStorageService {
         }
     }
 
-    private String storeFile(MultipartFile file, Path storageLocation, String relativePrefix) {
+    /**
+     * Upload un fichier vers Supabase Storage.
+     * Retourne un chemin relatif "bucket/nomFichier.ext" — c'est ce qui est
+     * stocké en base (voir EspacePublic.imageUrl / PropositionEspace.imageUrl),
+     * pas l'URL complète, pour rester indépendant du projet Supabase utilisé.
+     */
+    private String uploadToSupabase(MultipartFile file, String bucket) {
         String originalFileName = file.getOriginalFilename();
         String extension = "";
         if (originalFileName != null && originalFileName.contains(".")) {
             extension = originalFileName.substring(originalFileName.lastIndexOf("."));
         }
         String fileName = UUID.randomUUID() + extension;
-
-        Path targetLocation = storageLocation.resolve(fileName);
+        String contentType = file.getContentType() != null ? file.getContentType() : "application/octet-stream";
 
         try {
-            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(supabaseUrl + "/storage/v1/object/" + bucket + "/" + fileName))
+                    .header("Authorization", "Bearer " + supabaseServiceKey)
+                    .header("apikey", supabaseServiceKey)
+                    .header("Content-Type", contentType)
+                    .POST(HttpRequest.BodyPublishers.ofByteArray(file.getBytes()))
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                throw new BusinessException("Erreur lors de l'envoi de l'image vers le stockage (code " + response.statusCode() + ")");
+            }
         } catch (IOException e) {
             throw new BusinessException("Erreur lors de l'enregistrement du fichier");
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new BusinessException("Envoi du fichier interrompu");
         }
 
-        return relativePrefix + fileName;
+        return bucket + "/" + fileName;
     }
 
-    private Resource loadFile(String filePath, Path storageLocation) {
-        String fileName = Paths.get(filePath).getFileName().toString();
-        Path target = storageLocation.resolve(fileName).normalize();
-
-        if (!target.startsWith(storageLocation)) {
-            throw new BusinessException("Chemin de fichier invalide");
-        }
+    /**
+     * Télécharge un fichier depuis Supabase Storage via la clé service_role
+     * (fonctionne aussi bien pour un bucket privé que public).
+     */
+    private Resource downloadFromSupabase(String path, String defaultBucket) {
+        String objectKey = extractObjectKey(path, defaultBucket);
 
         try {
-            Resource resource = new UrlResource(target.toUri());
-            if (resource.exists() && resource.isReadable()) {
-                return resource;
-            } else {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(supabaseUrl + "/storage/v1/object/" + defaultBucket + "/" + objectKey))
+                    .header("Authorization", "Bearer " + supabaseServiceKey)
+                    .header("apikey", supabaseServiceKey)
+                    .GET()
+                    .build();
+
+            HttpResponse<byte[]> response = httpClient.send(request, HttpResponse.BodyHandlers.ofByteArray());
+
+            if (response.statusCode() == 404) {
                 throw new ResourceNotFoundException("Fichier introuvable");
             }
-        } catch (MalformedURLException e) {
-            throw new BusinessException("Chemin de fichier invalide");
+            if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                throw new BusinessException("Erreur lors de la lecture de l'image (code " + response.statusCode() + ")");
+            }
+
+            return new ByteArrayResource(response.body()) {
+                @Override
+                public String getFilename() {
+                    return objectKey;
+                }
+            };
+        } catch (IOException e) {
+            throw new BusinessException("Erreur lors de la lecture du fichier");
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new BusinessException("Lecture du fichier interrompue");
         }
+    }
+
+    /**
+     * Extrait le nom d'objet ("xxx.jpg") à partir d'un chemin stocké, qui peut
+     * être soit "bucket/xxx.jpg" (nouveau format Supabase), soit
+     * "uploads/espaces/xxx.jpg" (ancien format disque local, conservé pour
+     * compatibilité avec les données déjà en base avant la migration).
+     */
+    private String extractObjectKey(String path, String bucket) {
+        if (path == null || path.isBlank()) {
+            throw new ResourceNotFoundException("Fichier introuvable");
+        }
+        String normalized = path.replace('\\', '/');
+        int lastSlash = normalized.lastIndexOf('/');
+        return lastSlash >= 0 ? normalized.substring(lastSlash + 1) : normalized;
     }
 }

@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   StatusBar,
   RefreshControl,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -30,6 +31,9 @@ function PropositionCard({ proposition }: { proposition: PropositionEspaceRespon
 
   return (
     <View style={styles.card}>
+      {proposition.imageUrl ? (
+        <Image source={{ uri: proposition.imageUrl }} style={styles.cardImage} resizeMode="cover" />
+      ) : null}
       <View style={styles.cardHeader}>
         <Text style={styles.cardEmoji}>{emoji}</Text>
         <View style={styles.cardHeaderInfo}>
@@ -193,6 +197,11 @@ const styles = StyleSheet.create({
   },
   cardEmoji: {
     fontSize: 32,
+  },
+  cardImage: {
+    width: '100%',
+    height: 140,
+    backgroundColor: '#F1F5F9',
   },
   cardHeaderInfo: {
     flex: 1,

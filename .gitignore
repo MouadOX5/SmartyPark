@@ -31,3 +31,23 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Local secrets (never commit) ###
+src/main/resources/application-local.properties
+.env
+smartyPark_frontend/.env
+
+### Local dev artifacts ###
+backend.log
+smartyPark_frontend/expo.log
+smartyPark_frontend/npm-install.log
+smartyPark_frontend/eas_build.log
+
+### Images uploadees en local (migre vers Supabase Storage) ###
+### (les 3 photos de demo deja commitees restent trackees, seuls les
+### nouveaux fichiers generes a l'execution sont ignores) ###
+uploads/espaces/*.jpg
+!uploads/espaces/Jardin_d_Essais_Botaniques.jpg
+!uploads/espaces/parc_Hassan_2.jpg
+!uploads/espaces/park_hilton.jpg
+uploads/signalements/*
