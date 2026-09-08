@@ -10,11 +10,12 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Search, X, Map as MapIcon, List as ListIcon, Leaf } from 'lucide-react-native';
+import { Search, X, Map as MapIcon, List as ListIcon, Leaf, Bell } from 'lucide-react-native';
 import { COLORS } from '../../src/constants/colors';
 import { CategoryFilter } from '../../src/components/CategoryFilter';
 import { useAuth } from '../../src/context/AuthContext';
 import { usePresence } from '../../src/context/PresenceContext';
+import { useNotifications } from '../../src/context/NotificationContext';
 import { formatTimerSeconds } from '../../src/utils/formatters';
 import { useLocation } from '../../src/hooks/useLocation';
 import { useEspaces } from '../../src/hooks/useEspaces';
@@ -25,6 +26,7 @@ export default function ExplorerScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const { isActive, durationSeconds } = usePresence();
+  const { unreadCount } = useNotifications();
 
   const [viewMode, setViewMode] = useState<'liste' | 'carte'>('liste');
 
@@ -56,16 +58,30 @@ export default function ExplorerScreen() {
           </View>
           <Text style={styles.headerTitle}>SmartyPark</Text>
         </View>
-        {isActive && (
+        <View style={styles.headerRight}>
+          {isActive && (
+            <TouchableOpacity
+              style={styles.activeBadge}
+              onPress={() => router.push('/presence/')}
+              activeOpacity={0.8}
+            >
+              <View style={styles.activeDot} />
+              <Text style={styles.activeText}>{formatTimerSeconds(durationSeconds)}</Text>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity
-            style={styles.activeBadge}
-            onPress={() => router.push('/presence/')}
+            style={styles.bellBtn}
+            onPress={() => router.push('/notifications')}
             activeOpacity={0.8}
           >
-            <View style={styles.activeDot} />
-            <Text style={styles.activeText}>{formatTimerSeconds(durationSeconds)}</Text>
+            <Bell size={20} color="#006c49" />
+            {unreadCount > 0 && (
+              <View style={styles.bellBadge}>
+                <Text style={styles.bellBadgeText}>{unreadCount > 9 ? '9+' : unreadCount}</Text>
+              </View>
+            )}
           </TouchableOpacity>
-        )}
+        </View>
       </View>
 
       {/* Controls Section */}
@@ -193,6 +209,39 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#006c49',
     fontVariant: ['tabular-nums'],
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  bellBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#eef6ee',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  bellBadge: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: COLORS.danger,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+    borderWidth: 2,
+    borderColor: '#f4fbf4',
+  },
+  bellBadgeText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#FFFFFF',
   },
   controlsSection: {
     backgroundColor: '#f4fbf4',

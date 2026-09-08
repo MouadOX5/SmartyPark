@@ -22,13 +22,15 @@ interface PresenceContextType {
 const PresenceContext = createContext<PresenceContextType | undefined>(undefined);
 
 export const PresenceProvider = ({ children }: { children: ReactNode }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [activePresence, setActivePresence] = useState<PresenceResponse | null>(null);
   const [durationSeconds, setDurationSeconds] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const refreshPresence = async () => {
-    if (!isAuthenticated) {
+    // La présence est une fonctionnalité réservée aux comptes MOBILE_USER côté backend
+    // (voir PresenceController.java) : les modérateurs/admins reçoivent un 403.
+    if (!isAuthenticated || user?.role !== 'MOBILE_USER') {
       setActivePresence(null);
       setDurationSeconds(0);
       return;
@@ -54,7 +56,7 @@ export const PresenceProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     refreshPresence();
-  }, [isAuthenticated]);
+  }, [isAuthenticated, user?.role]);
 
   // Horloge / chronometre dynamique
   useEffect(() => {

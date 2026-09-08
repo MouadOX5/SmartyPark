@@ -59,6 +59,8 @@ public class PropositionEspace {
     @Column(length = 1000)
     private String motifRefus;
 
+    private String imageUrl;
+
     @NotNull(message = "Le statut est obligatoire")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

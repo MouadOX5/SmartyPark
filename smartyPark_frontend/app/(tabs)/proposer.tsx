@@ -11,11 +11,13 @@ import {
   Platform,
   StatusBar,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { MapPin, Navigation, Info, ListOrdered } from 'lucide-react-native';
-import { propositionApi } from '../../src/api/propositionApi';
+import { MapPin, Navigation, Info, ListOrdered, Camera, Trash2 } from 'lucide-react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { propositionApi, PhotoFile } from '../../src/api/propositionApi';
 import { CategorieEspace } from '../../src/types';
 import { COLORS } from '../../src/constants/colors';
 import { Button } from '../../src/components/ui/Button';
@@ -37,9 +39,62 @@ export default function ProposerScreen() {
   const [adresse, setAdresse] = useState('');
   const [categorie, setCategorie] = useState<CategorieEspace | null>(null);
   const [coords, setCoords] = useState<Coordinates | null>(null);
+  const [photo, setPhoto] = useState<PhotoFile | null>(null);
   const [isLocating, setIsLocating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const handlePickPhoto = async () => {
+    Alert.alert('Ajouter une photo', 'Sélectionnez une option', [
+      {
+        text: 'Prendre une photo',
+        onPress: async () => {
+          const { status } = await ImagePicker.requestCameraPermissionsAsync();
+          if (status !== 'granted') {
+            Alert.alert('Permission requise', "L'accès à l'appareil photo est nécessaire.");
+            return;
+          }
+          const result = await ImagePicker.launchCameraAsync({
+            quality: 0.7,
+            allowsEditing: true,
+            aspect: [4, 3],
+          });
+          if (!result.canceled && result.assets[0]) {
+            const asset = result.assets[0];
+            setPhoto({
+              uri: asset.uri,
+              name: asset.fileName || 'photo.jpg',
+              type: asset.mimeType || 'image/jpeg',
+            });
+          }
+        },
+      },
+      {
+        text: 'Choisir dans la galerie',
+        onPress: async () => {
+          const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+          if (status !== 'granted') {
+            Alert.alert('Permission requise', "L'accès à la galerie est nécessaire.");
+            return;
+          }
+          const result = await ImagePicker.launchImageLibraryAsync({
+            quality: 0.7,
+            allowsEditing: true,
+            aspect: [4, 3],
+          });
+          if (!result.canceled && result.assets[0]) {
+            const asset = result.assets[0];
+            setPhoto({
+              uri: asset.uri,
+              name: asset.fileName || 'photo.jpg',
+              type: asset.mimeType || 'image/jpeg',
+            });
+          }
+        },
+      },
+      { text: 'Annuler', style: 'cancel' },
+    ]);
+  };
 
   const handleGetGPS = async () => {
     setIsLocating(true);
@@ -74,14 +129,17 @@ export default function ProposerScreen() {
 
     setIsSubmitting(true);
     try {
-      await propositionApi.creer({
-        nom: nom.trim(),
-        description: description.trim(),
-        categorie,
-        adresse: adresse.trim(),
-        latitude: coords.latitude,
-        longitude: coords.longitude,
-      });
+      await propositionApi.creer(
+        {
+          nom: nom.trim(),
+          description: description.trim(),
+          categorie,
+          adresse: adresse.trim(),
+          latitude: coords.latitude,
+          longitude: coords.longitude,
+        },
+        photo
+      );
 
       Alert.alert(
         'Proposition envoyée ! 🎉',
@@ -100,6 +158,7 @@ export default function ProposerScreen() {
               setAdresse('');
               setCategorie(null);
               setCoords(null);
+              setPhoto(null);
             },
           },
         ]
@@ -242,6 +301,32 @@ export default function ProposerScreen() {
             {errors.coords ? (
               <Text style={styles.errorText}>{errors.coords}</Text>
             ) : null}
+          </View>
+
+          {/* Photo optionnelle */}
+          <View style={styles.fieldWrapper}>
+            <Text style={styles.fieldLabel}>Photo (optionnelle)</Text>
+            {photo ? (
+              <View style={styles.photoPreviewContainer}>
+                <Image source={{ uri: photo.uri }} style={styles.photoPreview} />
+                <TouchableOpacity
+                  style={styles.deletePhotoBtn}
+                  onPress={() => setPhoto(null)}
+                  activeOpacity={0.8}
+                >
+                  <Trash2 size={18} color="#FFFFFF" />
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <TouchableOpacity
+                style={styles.uploadBox}
+                onPress={handlePickPhoto}
+                activeOpacity={0.7}
+              >
+                <Camera size={28} color={COLORS.primary} />
+                <Text style={styles.uploadText}>Prendre ou sélectionner une photo</Text>
+              </TouchableOpacity>
+            )}
           </View>
 
           {/* Soumettre */}
@@ -412,5 +497,42 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: COLORS.primary,
+  },
+  uploadBox: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+    borderStyle: 'dashed',
+    borderRadius: 12,
+    paddingVertical: 28,
+    gap: 8,
+  },
+  uploadText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: COLORS.primary,
+  },
+  photoPreviewContainer: {
+    position: 'relative',
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  photoPreview: {
+    width: '100%',
+    height: 180,
+    borderRadius: 12,
+  },
+  deletePhotoBtn: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: 'rgba(15, 23, 42, 0.6)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

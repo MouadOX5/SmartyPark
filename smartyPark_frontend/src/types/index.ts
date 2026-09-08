@@ -21,6 +21,12 @@ export type StatutSignalement = 'EN_ATTENTE' | 'TRAITE' | 'REJETE';
 
 export type TypeSignalement = 'PROPRETE' | 'EQUIPEMENT' | 'SECURITE' | 'AUTRE';
 
+export type TypeNotification =
+  | 'PROPOSITION_VALIDEE'
+  | 'PROPOSITION_REJETEE'
+  | 'SIGNALEMENT_TRAITE'
+  | 'SIGNALEMENT_REJETE';
+
 // ==========================================
 // AUTH & UTILISATEUR DTOs
 // ==========================================
@@ -97,7 +103,11 @@ export interface PresenceResponse {
   statut: StatutPresence;
   espacePublicId: number;
   espacePublicNom: string;
-  distanceMetres?: number;
+  utilisateurId?: number;
+  utilisateurNom?: string;
+  utilisateurPrenom?: string;
+  // NB : le backend renvoie "distanceDeclarationMetres" (voir PresenceResponse.java).
+  distanceDeclarationMetres?: number;
   motifTerminaison?: string;
 }
 
@@ -164,6 +174,7 @@ export interface PropositionEspaceResponse {
   statut: StatutProposition;
   motifRefus?: string;
   dateProposition: string;
+  imageUrl?: string | null;
   proposeParkId: number;
   proposeParkNom: string;
   proposeParkPrenom: string;
@@ -182,6 +193,20 @@ export interface JournalResponse {
   acteurNom: string;
   acteurPrenom: string;
   acteurEmail: string;
+}
+
+// ==========================================
+// NOTIFICATION DTOs
+// ==========================================
+
+export interface NotificationResponse {
+  id: number;
+  type: TypeNotification;
+  titre: string;
+  message: string;
+  estLue: boolean;
+  referenceId?: number;
+  dateCreation: string;
 }
 
 // ==========================================

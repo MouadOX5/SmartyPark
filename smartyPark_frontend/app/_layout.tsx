@@ -2,6 +2,7 @@ import { Stack } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { AuthProvider } from '../src/context/AuthContext';
 import { PresenceProvider } from '../src/context/PresenceContext';
+import { NotificationProvider } from '../src/context/NotificationContext';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { COLORS } from '../src/constants/colors';
 
@@ -25,6 +26,7 @@ function RootLayoutContent() {
       <Stack.Screen name="signalements/creer" options={{ presentation: 'modal' }} />
       <Stack.Screen name="presence/index" options={{ presentation: 'card' }} />
       <Stack.Screen name="propositions/mes-propositions" options={{ presentation: 'card' }} />
+      <Stack.Screen name="notifications/index" options={{ presentation: 'card' }} />
     </Stack>
   );
 }
@@ -33,7 +35,9 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <PresenceProvider>
-        <RootLayoutContent />
+        <NotificationProvider>
+          <RootLayoutContent />
+        </NotificationProvider>
       </PresenceProvider>
     </AuthProvider>
   );

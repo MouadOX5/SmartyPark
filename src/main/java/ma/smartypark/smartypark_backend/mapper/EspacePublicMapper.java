@@ -4,14 +4,14 @@ import ma.smartypark.smartypark_backend.dto.espace.EspacePublicRequest;
 import ma.smartypark.smartypark_backend.dto.espace.EspacePublicResponse;
 import ma.smartypark.smartypark_backend.entity.EspacePublic;
 import ma.smartypark.smartypark_backend.entity.PropositionEspace;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class EspacePublicMapper {
 
-    @Value("${app.base-url:http://localhost:8080}")
-    private String baseUrl;
+    private final ImageUrlResolver imageUrlResolver;
 
     public EspacePublic toEntity(EspacePublicRequest request) {
         if (request == null) {
@@ -33,11 +33,7 @@ public class EspacePublicMapper {
             return null;
         }
 
-        // Construction de l'URL complète si un chemin relatif est stocké
-        String imageUrl = espacePublic.getImageUrl();
-        if (imageUrl != null && !imageUrl.isBlank() && !imageUrl.startsWith("http")) {
-            imageUrl = baseUrl + "/" + imageUrl;
-        }
+        String imageUrl = imageUrlResolver.resolve(espacePublic.getImageUrl());
 
         return EspacePublicResponse.builder()
                 .id(espacePublic.getId())
@@ -66,6 +62,9 @@ public class EspacePublicMapper {
                 .adresse(proposition.getAdresse())
                 .latitude(proposition.getLatitude())
                 .longitude(proposition.getLongitude())
+                // La photo jointe par l'utilisateur lors de la proposition (si présente)
+                // devient directement la photo de l'espace public créé.
+                .imageUrl(proposition.getImageUrl())
                 .estValide(true)
                 .build();
     }

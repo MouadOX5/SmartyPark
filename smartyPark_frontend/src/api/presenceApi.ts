@@ -68,4 +68,13 @@ export const presenceApi = {
     const response = await apiClient.get<number>(`/presences/espace/${espacePublicId}/count`);
     return response.data;
   },
+
+  /**
+   * Liste les présences actives dans un espace (supervision MODERATEUR/ADMIN)
+   * GET /api/presences/espace/{espacePublicId}
+   */
+  async getActiveByEspace(espacePublicId: number): Promise<PresenceResponse[]> {
+    const response = await apiClient.get<PresenceResponse[]>(`/presences/espace/${espacePublicId}`);
+    return response.data;
+  },
 };

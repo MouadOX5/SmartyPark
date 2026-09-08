@@ -6,9 +6,11 @@ import ma.smartypark.smartypark_backend.dto.proposition.PropositionEspaceRequest
 import ma.smartypark.smartypark_backend.dto.proposition.PropositionEspaceResponse;
 import ma.smartypark.smartypark_backend.service.PropositionEspaceService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -19,10 +21,12 @@ public class PropositionEspaceController {
 
     private final PropositionEspaceService propositionEspaceService;
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('MOBILE_USER')")
-    public ResponseEntity<PropositionEspaceResponse> creer(@Valid @RequestBody PropositionEspaceRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(propositionEspaceService.creer(request));
+    public ResponseEntity<PropositionEspaceResponse> creer(
+            @RequestPart("proposition") @Valid PropositionEspaceRequest request,
+            @RequestPart(value = "image", required = false) MultipartFile image) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(propositionEspaceService.creer(request, image));
     }
 
     @GetMapping("/{id}")

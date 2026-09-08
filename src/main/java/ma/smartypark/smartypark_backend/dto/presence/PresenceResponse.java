@@ -26,6 +26,12 @@ public class PresenceResponse {
     private Long espacePublicId;
     private String espacePublicNom;
 
+    // Informations minimales de l'utilisateur présent (utile pour la
+    // supervision côté MODERATEUR/ADMINISTRATEUR)
+    private Long utilisateurId;
+    private String utilisateurNom;
+    private String utilisateurPrenom;
+
     /** Distance entre l'utilisateur et l'espace au moment de la déclaration (en mètres) */
     private Double distanceDeclarationMetres;
 

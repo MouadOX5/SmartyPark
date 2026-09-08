@@ -11,6 +11,7 @@ import ma.smartypark.smartypark_backend.repository.EspacePublicRepository;
 import ma.smartypark.smartypark_backend.repository.SignalementRepository;
 import ma.smartypark.smartypark_backend.service.FileStorageService;
 import ma.smartypark.smartypark_backend.service.JournalService;
+import ma.smartypark.smartypark_backend.service.NotificationService;
 import ma.smartypark.smartypark_backend.service.SignalementService;
 import ma.smartypark.smartypark_backend.service.UtilisateurService;
 import ma.smartypark.smartypark_backend.exception.BusinessException;
@@ -34,6 +35,7 @@ public class  SignalementServiceImpl implements SignalementService {
     private final UtilisateurService utilisateurService;
     private final JournalService journalService;
     private final FileStorageService fileStorageService;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional
@@ -150,6 +152,23 @@ public class  SignalementServiceImpl implements SignalementService {
                         + ", commentaire : " + commentaireModerateur;
 
         journalService.log(action, details);
+
+        TypeNotification typeNotif = nouveauStatut == StatutSignalement.TRAITE
+                ? TypeNotification.SIGNALEMENT_TRAITE
+                : TypeNotification.SIGNALEMENT_REJETE;
+
+        String titreNotif = nouveauStatut == StatutSignalement.TRAITE
+                ? "Votre signalement a été traité"
+                : "Votre signalement a été rejeté";
+
+        notificationService.creer(
+                signalementTraite.getSignalePark(),
+                typeNotif,
+                titreNotif,
+                "Concernant votre signalement sur \"" + signalementTraite.getEspacePublic().getNom()
+                        + "\" : " + commentaireModerateur,
+                signalementTraite.getId()
+        );
 
         return signalementMapper.toResponse(signalementTraite);
 

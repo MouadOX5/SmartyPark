@@ -169,24 +169,26 @@ export default function ProfilScreen() {
         </View>
 
         {/* Actions */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Mes activités</Text>
+        {user.role === 'MOBILE_USER' && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Mes activités</Text>
 
-          <TouchableOpacity
-            style={styles.actionRow}
-            onPress={() => router.push('/propositions/mes-propositions')}
-            activeOpacity={0.8}
-          >
-            <View style={[styles.actionIcon, { backgroundColor: '#EDE9FE' }]}>
-              <FileText size={20} color="#7C3AED" />
-            </View>
-            <View style={styles.actionContent}>
-              <Text style={styles.actionTitle}>Mes propositions</Text>
-              <Text style={styles.actionSubtitle}>Espaces que j'ai proposés</Text>
-            </View>
-            <ChevronRight size={18} color="#94A3B8" />
-          </TouchableOpacity>
-        </View>
+            <TouchableOpacity
+              style={styles.actionRow}
+              onPress={() => router.push('/propositions/mes-propositions')}
+              activeOpacity={0.8}
+            >
+              <View style={[styles.actionIcon, { backgroundColor: '#EDE9FE' }]}>
+                <FileText size={20} color="#7C3AED" />
+              </View>
+              <View style={styles.actionContent}>
+                <Text style={styles.actionTitle}>Mes propositions</Text>
+                <Text style={styles.actionSubtitle}>Espaces que j'ai proposés</Text>
+              </View>
+              <ChevronRight size={18} color="#94A3B8" />
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* Déconnexion */}
         <View style={styles.section}>

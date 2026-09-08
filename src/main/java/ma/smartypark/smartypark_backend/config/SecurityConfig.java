@@ -44,6 +44,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/register").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
+                        // Photos des espaces publics : contenu public, doit être chargeable
+                        // par <Image> côté mobile sans en-tête Authorization.
+                        // (Les photos de signalements restent protégées : servies via
+                        // /api/signalements/{id}/photo, derrière @PreAuthorize MODERATEUR/ADMIN.)
+                        .requestMatchers(HttpMethod.GET, "/uploads/espaces/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
