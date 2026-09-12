@@ -17,6 +17,8 @@ public interface UtilisateurRepository extends JpaRepository<Utilisateur, Long> 
 
     List<Utilisateur> findByRole(Role role);
 
+    List<Utilisateur> findByRoleIn(List<Role> roles);
+
     List<Utilisateur> findByEstActif(Boolean estActif);
 
     List<Utilisateur> findByRoleAndEstActif(Role role, Boolean estActif);

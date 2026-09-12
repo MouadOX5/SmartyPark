@@ -164,6 +164,16 @@ public class PresenceServiceImpl implements PresenceService {
     }
 
     @Override
+    public List<PresenceResponse> findHistoriqueByEspace(Long espacePublicId) {
+        EspacePublic espace = espacePublicRepository.findById(espacePublicId)
+                .orElseThrow(() -> new ResourceNotFoundException("Espace public introuvable"));
+
+        return presenceRepository.findByEspacePublicOrderByHeureArriveeDesc(espace).stream()
+                .map(presenceMapper::toResponse)
+                .toList();
+    }
+
+    @Override
     public Long compterActifsDansEspace(Long espacePublicId) {
         EspacePublic espace = espacePublicRepository.findById(espacePublicId)
                 .orElseThrow(() -> new ResourceNotFoundException("Espace public introuvable"));

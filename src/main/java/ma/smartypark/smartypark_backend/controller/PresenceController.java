@@ -54,4 +54,10 @@ public class PresenceController {
     public ResponseEntity<Long> compterActifsDansEspace(@PathVariable Long espacePublicId) {
         return ResponseEntity.ok(presenceService.compterActifsDansEspace(espacePublicId));
     }
+
+    @GetMapping("/espace/{espacePublicId}/historique")
+    @PreAuthorize("hasAnyRole('MODERATEUR', 'ADMINISTRATEUR')")
+    public ResponseEntity<List<PresenceResponse>> findHistoriqueByEspace(@PathVariable Long espacePublicId) {
+        return ResponseEntity.ok(presenceService.findHistoriqueByEspace(espacePublicId));
+    }
 }

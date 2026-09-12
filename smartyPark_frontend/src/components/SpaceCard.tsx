@@ -9,14 +9,8 @@ import {
 import { MapPin } from 'lucide-react-native';
 import { EspacePublicResponse } from '../types';
 import { AffluenceBadge } from './AffluenceBadge';
+import { CategoryIcon } from './CategoryIcon';
 import { formatCategoryName } from '../utils/formatters';
-
-const CATEGORY_EMOJIS: Record<string, string> = {
-  FOOTBALL: '⚽',
-  BASKETBALL: '🏀',
-  STREET_WORKOUT: '💪',
-  ENFANTS: '🎠',
-};
 
 const CATEGORY_BG: Record<string, string> = {
   FOOTBALL: '#E3F2FD',
@@ -33,7 +27,6 @@ interface SpaceCardProps {
 
 export const SpaceCard: React.FC<SpaceCardProps> = ({ espace, onPress, distance }) => {
   const [imageError, setImageError] = useState(false);
-  const emoji = CATEGORY_EMOJIS[espace.categorie] || '🏟️';
   const catBg = CATEGORY_BG[espace.categorie] || '#E8F5E9';
 
   return (
@@ -58,8 +51,8 @@ export const SpaceCard: React.FC<SpaceCardProps> = ({ espace, onPress, distance 
         </View>
       ) : (
         <View style={[styles.imagePlaceholder, { backgroundColor: catBg }]}>
-          <Text style={styles.largeEmoji}>{emoji}</Text>
-          
+          <CategoryIcon categorie={espace.categorie} size={44} />
+
           {distance !== undefined && (
             <View style={styles.distanceBadge}>
               <MapPin size={14} color="#006c49" />

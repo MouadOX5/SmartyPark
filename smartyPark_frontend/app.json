@@ -29,12 +29,7 @@
         "android.permission.CAMERA",
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.RECORD_AUDIO"
-      ],
-      "config": {
-        "googleMaps": {
-          "apiKey": "AIzaSyBH83PQE6hH8VzY0oD_dQmF7eh0iLk0Pa0"
-        }
-      }
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -42,6 +37,7 @@
     },
     "plugins": [
       "expo-router",
+      "@maplibre/maplibre-react-native",
       [
         "expo-location",
         {

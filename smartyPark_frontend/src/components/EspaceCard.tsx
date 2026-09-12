@@ -10,19 +10,13 @@ import { EspacePublicResponse } from '../types';
 import { COLORS, AFFLUENCE_CONFIG } from '../constants/colors';
 import { formatCategoryName } from '../utils/formatters';
 import { AffluenceBadge } from './ui/Badge';
+import { CategoryIcon } from './CategoryIcon';
 
 interface EspaceCardProps {
   espace: EspacePublicResponse;
   onPress: () => void;
   distance?: number; // en mètres, calculé côté frontend
 }
-
-const CATEGORY_EMOJIS: Record<string, string> = {
-  FOOTBALL: '⚽',
-  BASKETBALL: '🏀',
-  STREET_WORKOUT: '💪',
-  ENFANTS: '🎠',
-};
 
 const CATEGORY_COLORS: Record<string, string> = {
   FOOTBALL: '#E3F2FD',
@@ -33,7 +27,6 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 export const EspaceCard: React.FC<EspaceCardProps> = ({ espace, onPress, distance }) => {
   const config = AFFLUENCE_CONFIG[espace.statutAffluenceActuel] || AFFLUENCE_CONFIG.INCONNU;
-  const emoji = CATEGORY_EMOJIS[espace.categorie] || '🏟️';
   const categoryBg = CATEGORY_COLORS[espace.categorie] || '#E8F5E9';
 
   return (
@@ -44,7 +37,7 @@ export const EspaceCard: React.FC<EspaceCardProps> = ({ espace, onPress, distanc
     >
       {/* Header Catégorie */}
       <View style={[styles.categoryHeader, { backgroundColor: categoryBg }]}>
-        <Text style={styles.categoryEmoji}>{emoji}</Text>
+        <CategoryIcon categorie={espace.categorie} size={28} />
         <View style={styles.headerRight}>
           <Text style={styles.categoryLabel}>{formatCategoryName(espace.categorie)}</Text>
           <AffluenceBadge statut={espace.statutAffluenceActuel} />

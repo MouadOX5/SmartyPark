@@ -22,22 +22,16 @@ import { formatCategoryName } from '../../utils/formatters';
 import { getCurrentLocation, Coordinates } from '../../utils/location';
 import { CategorieEspace, EspacePublicResponse } from '../../types';
 import { PhotoFile } from '../../types/media';
+import { CategoryIcon } from '../CategoryIcon';
 import { adminStyles as s } from './adminStyles';
 import type { SectionHandle } from './PropositionsSection';
 
-const CATEGORIES: { key: CategorieEspace; label: string; emoji: string }[] = [
-  { key: 'STREET_WORKOUT', label: 'Street Workout', emoji: '💪' },
-  { key: 'FOOTBALL', label: 'Football', emoji: '⚽' },
-  { key: 'BASKETBALL', label: 'Basketball', emoji: '🏀' },
-  { key: 'ENFANTS', label: 'Aires de jeux', emoji: '🎠' },
+const CATEGORIES: { key: CategorieEspace; label: string }[] = [
+  { key: 'STREET_WORKOUT', label: 'Street Workout' },
+  { key: 'FOOTBALL', label: 'Football' },
+  { key: 'BASKETBALL', label: 'Basketball' },
+  { key: 'ENFANTS', label: 'Aires de jeux' },
 ];
-
-const CATEGORY_EMOJIS: Record<string, string> = {
-  FOOTBALL: '⚽',
-  BASKETBALL: '🏀',
-  STREET_WORKOUT: '💪',
-  ENFANTS: '🎠',
-};
 
 interface Props {
   isAdministrateur: boolean;
@@ -123,7 +117,7 @@ export const EspacesSection = forwardRef<SectionHandle, Props>(({ isAdministrate
           <View style={s.card}>
             {item.imageUrl ? <Image source={{ uri: item.imageUrl }} style={s.photo} resizeMode="cover" /> : null}
             <View style={s.cardHeader}>
-              <Text style={s.cardEmoji}>{CATEGORY_EMOJIS[item.categorie] || '🏟️'}</Text>
+              <CategoryIcon categorie={item.categorie} size={28} />
               <View style={s.cardHeaderInfo}>
                 <Text style={s.cardName}>{item.nom}</Text>
                 <Text style={s.cardCategory}>{formatCategoryName(item.categorie)}</Text>
@@ -297,11 +291,12 @@ function CreateEspaceModal({
               {CATEGORIES.map((cat) => (
                 <TouchableOpacity
                   key={cat.key}
-                  style={[localStyles.catChip, categorie === cat.key && localStyles.catChipSelected]}
+                  style={[localStyles.catChip, categorie === cat.key && localStyles.catChipSelected, { flexDirection: 'row', alignItems: 'center', gap: 6 }]}
                   onPress={() => setCategorie(cat.key)}
                   activeOpacity={0.8}
                 >
-                  <Text>{cat.emoji} {cat.label}</Text>
+                  <CategoryIcon categorie={cat.key} size={16} />
+                  <Text>{cat.label}</Text>
                 </TouchableOpacity>
               ))}
             </View>

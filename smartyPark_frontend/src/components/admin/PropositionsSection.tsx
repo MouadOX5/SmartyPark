@@ -17,15 +17,9 @@ import { MapPin, Clock, Check, X, User as UserIcon, Inbox } from 'lucide-react-n
 import { propositionApi } from '../../api/propositionApi';
 import { COLORS } from '../../constants/colors';
 import { formatDateTime, formatCategoryName } from '../../utils/formatters';
+import { CategoryIcon } from '../CategoryIcon';
 import { PropositionEspaceResponse } from '../../types';
 import { adminStyles as s } from './adminStyles';
-
-const CATEGORY_EMOJIS: Record<string, string> = {
-  FOOTBALL: '⚽',
-  BASKETBALL: '🏀',
-  STREET_WORKOUT: '💪',
-  ENFANTS: '🎠',
-};
 
 export interface SectionHandle {
   refresh: () => void;
@@ -137,7 +131,7 @@ export const PropositionsSection = forwardRef<SectionHandle, Props>(({ onCountCh
           <View style={s.card}>
             {item.imageUrl ? <Image source={{ uri: item.imageUrl }} style={s.photo} resizeMode="cover" /> : null}
             <View style={s.cardHeader}>
-              <Text style={s.cardEmoji}>{CATEGORY_EMOJIS[item.categorie] || '🏟️'}</Text>
+              <CategoryIcon categorie={item.categorie} size={28} />
               <View style={s.cardHeaderInfo}>
                 <Text style={s.cardName}>{item.nom}</Text>
                 <Text style={s.cardCategory}>{formatCategoryName(item.categorie)}</Text>

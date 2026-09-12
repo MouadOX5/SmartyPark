@@ -22,13 +22,14 @@ import { CategorieEspace } from '../../src/types';
 import { COLORS } from '../../src/constants/colors';
 import { Button } from '../../src/components/ui/Button';
 import { Input } from '../../src/components/ui/Input';
+import { CategoryIcon } from '../../src/components/CategoryIcon';
 import { getCurrentLocation, Coordinates } from '../../src/utils/location';
 
-const CATEGORIES: { key: CategorieEspace; label: string; emoji: string }[] = [
-  { key: 'STREET_WORKOUT', label: 'Street Workout', emoji: '💪' },
-  { key: 'FOOTBALL', label: 'Football', emoji: '⚽' },
-  { key: 'BASKETBALL', label: 'Basketball', emoji: '🏀' },
-  { key: 'ENFANTS', label: 'Aires de jeux', emoji: '🎠' },
+const CATEGORIES: { key: CategorieEspace; label: string }[] = [
+  { key: 'STREET_WORKOUT', label: 'Street Workout' },
+  { key: 'FOOTBALL', label: 'Football' },
+  { key: 'BASKETBALL', label: 'Basketball' },
+  { key: 'ENFANTS', label: 'Aires de jeux' },
 ];
 
 export default function ProposerScreen() {
@@ -220,7 +221,7 @@ export default function ProposerScreen() {
                     }}
                     activeOpacity={0.8}
                   >
-                    <Text style={styles.catEmoji}>{cat.emoji}</Text>
+                    <CategoryIcon categorie={cat.key} size={22} />
                     <Text
                       style={[
                         styles.catLabel,

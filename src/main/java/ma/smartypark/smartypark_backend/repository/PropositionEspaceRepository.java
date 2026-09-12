@@ -13,6 +13,8 @@ public interface PropositionEspaceRepository extends JpaRepository<PropositionEs
 
     List<PropositionEspace> findByStatut(StatutProposition statut);
 
+    List<PropositionEspace> findAllByOrderByDatePropositionDesc();
+
     List<PropositionEspace> findByProposePark(Utilisateur utilisateur);
 
     List<PropositionEspace> findByStatutAndProposePark(StatutProposition statut, Utilisateur utilisateur);

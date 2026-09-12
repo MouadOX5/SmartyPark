@@ -86,6 +86,14 @@ public class PropositionEspaceServiceImpl implements PropositionEspaceService {
                         + saved.getAdresse()
         );
 
+        notificationService.notifierModerateurs(
+                TypeNotification.NOUVELLE_PROPOSITION,
+                "Nouvelle proposition à examiner",
+                utilisateur.getPrenom() + " " + utilisateur.getNom()
+                        + " a proposé l'espace \"" + saved.getNom() + "\".",
+                saved.getId()
+        );
+
         return propositionMapper.toResponse(saved);
 
     }
@@ -100,6 +108,13 @@ public class PropositionEspaceServiceImpl implements PropositionEspaceService {
     @Override
     public List<PropositionEspaceResponse> findEnAttente() {
         return propositionRepository.findByStatut(StatutProposition.EN_ATTENTE).stream()
+                .map(propositionMapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    public List<PropositionEspaceResponse> findHistorique() {
+        return propositionRepository.findAllByOrderByDatePropositionDesc().stream()
                 .map(propositionMapper::toResponse)
                 .toList();
     }

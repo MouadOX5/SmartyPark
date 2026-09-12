@@ -14,6 +14,12 @@ public interface PropositionEspaceService {
 
     List<PropositionEspaceResponse> findEnAttente();
 
+    /**
+     * Historique complet des propositions (tous statuts confondus), du plus
+     * récent au plus ancien. Réservé aux modérateurs/administrateurs.
+     */
+    List<PropositionEspaceResponse> findHistorique();
+
     List<PropositionEspaceResponse> findByCurrentUser();
 
     PropositionEspaceResponse valider(Long id);
