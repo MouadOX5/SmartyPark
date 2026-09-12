@@ -21,6 +21,12 @@ public interface PresenceService {
 
     Long compterActifsDansEspace(Long espacePublicId);
 
+    /**
+     * Historique complet des présences (actives et terminées) dans un
+     * espace, du plus récent au plus ancien. Réservé aux modérateurs/admins.
+     */
+    List<PresenceResponse> findHistoriqueByEspace(Long espacePublicId);
+
     void cloturerPresencesInactives();
 
     /**

@@ -25,7 +25,9 @@ export type TypeNotification =
   | 'PROPOSITION_VALIDEE'
   | 'PROPOSITION_REJETEE'
   | 'SIGNALEMENT_TRAITE'
-  | 'SIGNALEMENT_REJETE';
+  | 'SIGNALEMENT_REJETE'
+  | 'NOUVELLE_PROPOSITION'
+  | 'NOUVEAU_SIGNALEMENT';
 
 // ==========================================
 // AUTH & UTILISATEUR DTOs

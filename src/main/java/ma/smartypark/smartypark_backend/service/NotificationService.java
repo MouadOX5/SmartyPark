@@ -15,6 +15,12 @@ public interface NotificationService {
      */
     void creer(Utilisateur destinataire, TypeNotification type, String titre, String message, Long referenceId);
 
+    /**
+     * Notifie tous les modérateurs et administrateurs (ex : nouvelle
+     * proposition ou nouveau signalement à examiner).
+     */
+    void notifierModerateurs(TypeNotification type, String titre, String message, Long referenceId);
+
     List<NotificationResponse> findByCurrentUser();
 
     long countNonLuesForCurrentUser();

@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { ArrowLeft, CheckCheck, PartyPopper, XCircle, Wrench, ShieldCheck, BellOff } from 'lucide-react-native';
+import { ArrowLeft, CheckCheck, PartyPopper, XCircle, Wrench, ShieldCheck, BellOff, ClipboardList, ShieldAlert } from 'lucide-react-native';
 import { useNotifications } from '../../src/context/NotificationContext';
 import { COLORS } from '../../src/constants/colors';
 import { formatDateTime } from '../../src/utils/formatters';
@@ -13,6 +13,9 @@ const TYPE_CONFIG: Record<TypeNotification, { icon: React.ReactNode; color: stri
   PROPOSITION_REJETEE: { icon: <XCircle size={20} color="#DC2626" />, color: '#DC2626', bg: '#FEE2E2' },
   SIGNALEMENT_TRAITE: { icon: <Wrench size={20} color="#0284C7" />, color: '#0284C7', bg: '#E0F2FE' },
   SIGNALEMENT_REJETE: { icon: <ShieldCheck size={20} color="#D97706" />, color: '#D97706', bg: '#FEF3C7' },
+  // Notifications destinées aux MODERATEUR/ADMINISTRATEUR
+  NOUVELLE_PROPOSITION: { icon: <ClipboardList size={20} color="#7C3AED" />, color: '#7C3AED', bg: '#EDE9FE' },
+  NOUVEAU_SIGNALEMENT: { icon: <ShieldAlert size={20} color="#DC2626" />, color: '#DC2626', bg: '#FEE2E2' },
 };
 
 function NotificationCard({ item, onPress }: { item: NotificationResponse; onPress: () => void }) {

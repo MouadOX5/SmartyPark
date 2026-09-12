@@ -7,19 +7,13 @@ import { EspacePublicResponse } from '../../types';
 import { Coordinates } from '../../utils/location';
 import { COLORS } from '../../constants/colors';
 import { AffluenceBadge } from '../AffluenceBadge';
+import { CategoryIcon } from '../CategoryIcon';
 import { formatCategoryName } from '../../utils/formatters';
 
 interface EspacesMapViewProps {
   espaces: EspacePublicResponse[];
   userLocation: Coordinates | null;
 }
-
-const CATEGORY_EMOJIS: Record<string, string> = {
-  FOOTBALL: '⚽',
-  BASKETBALL: '🏀',
-  STREET_WORKOUT: '💪',
-  ENFANTS: '🎠',
-};
 
 export function EspacesMapView({ espaces, userLocation }: EspacesMapViewProps) {
   const router = useRouter();
@@ -91,7 +85,7 @@ export function EspacesMapView({ espaces, userLocation }: EspacesMapViewProps) {
               <Image source={{ uri: selected.imageUrl }} style={styles.detailImage} resizeMode="cover" />
             ) : (
               <View style={[styles.detailImage, styles.detailImagePlaceholder]}>
-                <Text style={styles.detailEmoji}>{CATEGORY_EMOJIS[selected.categorie] || '🏟️'}</Text>
+                <CategoryIcon categorie={selected.categorie} size={36} />
               </View>
             )}
 

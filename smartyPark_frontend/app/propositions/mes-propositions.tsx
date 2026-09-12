@@ -16,18 +16,11 @@ import { ArrowLeft, MapPin, Clock, Package } from 'lucide-react-native';
 import { propositionApi } from '../../src/api/propositionApi';
 import { PropositionEspaceResponse } from '../../src/types';
 import { COLORS } from '../../src/constants/colors';
+import { CategoryIcon } from '../../src/components/CategoryIcon';
 import { formatDateTime, formatCategoryName, formatPropositionStatus } from '../../src/utils/formatters';
-
-const CATEGORY_EMOJIS: Record<string, string> = {
-  FOOTBALL: '⚽',
-  BASKETBALL: '🏀',
-  STREET_WORKOUT: '💪',
-  ENFANTS: '🎠',
-};
 
 function PropositionCard({ proposition }: { proposition: PropositionEspaceResponse }) {
   const status = formatPropositionStatus(proposition.statut);
-  const emoji = CATEGORY_EMOJIS[proposition.categorie] || '🏟️';
 
   return (
     <View style={styles.card}>
@@ -35,7 +28,7 @@ function PropositionCard({ proposition }: { proposition: PropositionEspaceRespon
         <Image source={{ uri: proposition.imageUrl }} style={styles.cardImage} resizeMode="cover" />
       ) : null}
       <View style={styles.cardHeader}>
-        <Text style={styles.cardEmoji}>{emoji}</Text>
+        <CategoryIcon categorie={proposition.categorie} size={28} />
         <View style={styles.cardHeaderInfo}>
           <Text style={styles.cardName}>{proposition.nom}</Text>
           <Text style={styles.cardCategory}>{formatCategoryName(proposition.categorie)}</Text>

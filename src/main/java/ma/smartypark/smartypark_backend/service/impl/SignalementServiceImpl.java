@@ -83,6 +83,15 @@ public class  SignalementServiceImpl implements SignalementService {
                         + espace.getId()
         );
 
+        notificationService.notifierModerateurs(
+                TypeNotification.NOUVEAU_SIGNALEMENT,
+                "Nouveau signalement à examiner",
+                utilisateur.getPrenom() + " " + utilisateur.getNom()
+                        + " a signalé un problème (" + signalementCree.getType()
+                        + ") sur \"" + espace.getNom() + "\".",
+                signalementCree.getId()
+        );
+
         return signalementMapper.toResponse(signalementCree);
     }
 

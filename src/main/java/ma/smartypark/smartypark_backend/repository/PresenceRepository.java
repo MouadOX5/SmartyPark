@@ -20,6 +20,8 @@ public interface PresenceRepository extends JpaRepository<Presence, Long> {
 
     List<Presence> findByEspacePublicAndStatut(EspacePublic espacePublic, StatutPresence statut);
 
+    List<Presence> findByEspacePublicOrderByHeureArriveeDesc(EspacePublic espacePublic);
+
     Long countByEspacePublicAndStatut(EspacePublic espacePublic, StatutPresence statut);
 
     List<Presence> findByStatutAndHeureArriveeBefore(StatutPresence statut, LocalDateTime dateLimite);

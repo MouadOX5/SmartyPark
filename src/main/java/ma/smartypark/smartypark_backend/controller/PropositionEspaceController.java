@@ -41,6 +41,12 @@ public class PropositionEspaceController {
         return ResponseEntity.ok(propositionEspaceService.findEnAttente());
     }
 
+    @GetMapping("/historique")
+    @PreAuthorize("hasAnyRole('MODERATEUR', 'ADMINISTRATEUR')")
+    public ResponseEntity<List<PropositionEspaceResponse>> findHistorique() {
+        return ResponseEntity.ok(propositionEspaceService.findHistorique());
+    }
+
     @GetMapping("/mes-propositions")
     @PreAuthorize("hasRole('MOBILE_USER')")
     public ResponseEntity<List<PropositionEspaceResponse>> findByCurrentUser() {

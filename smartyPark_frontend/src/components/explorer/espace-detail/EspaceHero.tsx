@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ImageBackground } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, ImageBackground } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, Share as ShareIcon } from 'lucide-react-native';
+import { CategoryIcon } from '../../CategoryIcon';
 
 interface EspaceHeroProps {
   imageUrl?: string | null;
@@ -11,13 +12,6 @@ interface EspaceHeroProps {
   onShare: () => void;
   onImageError: () => void;
 }
-
-const CATEGORY_EMOJIS: Record<string, string> = {
-  FOOTBALL: '⚽',
-  BASKETBALL: '🏀',
-  STREET_WORKOUT: '💪',
-  ENFANTS: '🎠',
-};
 
 const CATEGORY_BG: Record<string, string> = {
   FOOTBALL: '#E3F2FD',
@@ -34,7 +28,6 @@ export default function EspaceHero({
   onShare,
   onImageError,
 }: EspaceHeroProps) {
-  const emoji = CATEGORY_EMOJIS[categorie] || '🏟️';
   const catBg = CATEGORY_BG[categorie] || '#E8F5E9';
 
   return (
@@ -49,7 +42,7 @@ export default function EspaceHero({
         </ImageBackground>
       ) : (
         <View style={[styles.heroImage, { backgroundColor: catBg }]}>
-          <Text style={styles.heroEmoji}>{emoji}</Text>
+          <CategoryIcon categorie={categorie} size={64} color="#FFFFFF" />
           <View style={styles.gradientOverlay} />
         </View>
       )}

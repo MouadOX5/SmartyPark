@@ -3,12 +3,14 @@ package ma.smartypark.smartypark_backend.service.impl;
 import lombok.RequiredArgsConstructor;
 import ma.smartypark.smartypark_backend.dto.notification.NotificationResponse;
 import ma.smartypark.smartypark_backend.entity.Notification;
+import ma.smartypark.smartypark_backend.entity.Role;
 import ma.smartypark.smartypark_backend.entity.TypeNotification;
 import ma.smartypark.smartypark_backend.entity.Utilisateur;
 import ma.smartypark.smartypark_backend.exception.BusinessException;
 import ma.smartypark.smartypark_backend.exception.ResourceNotFoundException;
 import ma.smartypark.smartypark_backend.mapper.NotificationMapper;
 import ma.smartypark.smartypark_backend.repository.NotificationRepository;
+import ma.smartypark.smartypark_backend.repository.UtilisateurRepository;
 import ma.smartypark.smartypark_backend.service.NotificationService;
 import ma.smartypark.smartypark_backend.service.UtilisateurService;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,7 @@ public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
     private final NotificationMapper notificationMapper;
     private final UtilisateurService utilisateurService;
+    private final UtilisateurRepository utilisateurRepository;
 
     @Override
     @Transactional
@@ -42,6 +45,27 @@ public class NotificationServiceImpl implements NotificationService {
                 .build();
 
         notificationRepository.save(notification);
+    }
+
+    @Override
+    @Transactional
+    public void notifierModerateurs(TypeNotification type, String titre, String message, Long referenceId) {
+        List<Utilisateur> destinataires = utilisateurRepository.findByRoleIn(
+                List.of(Role.MODERATEUR, Role.ADMINISTRATEUR)
+        );
+
+        List<Notification> notifications = destinataires.stream()
+                .map(u -> Notification.builder()
+                        .destinataire(u)
+                        .type(type)
+                        .titre(titre)
+                        .message(message)
+                        .referenceId(referenceId)
+                        .estLue(false)
+                        .build())
+                .toList();
+
+        notificationRepository.saveAll(notifications);
     }
 
     @Override
